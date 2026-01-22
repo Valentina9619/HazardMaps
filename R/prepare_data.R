@@ -126,14 +126,14 @@ hm_decode_time <- function(x, tz = "UTC") {if (is.null(x) || !"hm_hazard" %in% c
 
 
 
-#' Convert hazard array to a time X cell matrix
+#' Convert hazard array to a time x cell matrix
 #'
 #' Converts `x$data` (an array with one time dimension) into a numeric matrix with:
 #' rows = time steps, columns = grid cells (cell_id). Time and coordinates are stored as attributes.
 #'
 #' @param x An `hm_hazard` object after [hm_standardize_coords()] and [hm_decode_time()].
 #'
-#' @return A numeric matrix of dimension (T X N) with attributes:
+#' @return A numeric matrix of dimension (T x N) with attributes:
 #'   - `time`: the decoded time vector
 #'   - `coords`: the coordinate table (must include `cell_id`, `lat`, `lon`)
 #' @export

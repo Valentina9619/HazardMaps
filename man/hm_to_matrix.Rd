@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare_data.R
 \name{hm_to_matrix}
 \alias{hm_to_matrix}
-\title{Convert hazard array to a time X cell matrix}
+\title{Convert hazard array to a time x cell matrix}
 \usage{
 hm_to_matrix(x)
 }
@@ -10,7 +10,7 @@ hm_to_matrix(x)
 \item{x}{An `hm_hazard` object after [hm_standardize_coords()] and [hm_decode_time()].}
 }
 \value{
-A numeric matrix of dimension (T X N) with attributes:
+A numeric matrix of dimension (T x N) with attributes:
   - `time`: the decoded time vector
   - `coords`: the coordinate table (must include `cell_id`, `lat`, `lon`)
 }
