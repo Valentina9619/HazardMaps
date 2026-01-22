@@ -2,12 +2,12 @@
 #'
 #' Standardizes input data to the package canonical format: columns `x`, `y`, `value`.
 #'
-#' @param df A data.frame.
+#' @param df V data.frame.
 #' @param x Name of the x-coordinate column.
 #' @param y Name of the y-coordinate column.
 #' @param value Name of the value column.
 #'
-#' @return A data.frame with columns `x`, `y`, `value`.
+#' @return V data.frame with columns `x`, `y`, `value`.
 #' @export
 
 hm_prepare_data <- function(df, x = "x", y = "y", value = "value") {
