@@ -1,11 +1,19 @@
 Package: HazardMaps
 Type: Package
-Title: What the Package Does (Title Case)
+Title: Spatial Dependence Modeling and Pseudoscenario Generation for Natural Hazards
 Version: 0.1.0
-Author: Clavijo Mesa, Maria Valentina. 
-Maintainer: The package maintainer <valentina.clavijo@usp.br>
-Description: More about what it does (maybe more than one line)
-    Use four spaces when indenting paragraphs within the Description.
+Authors@R: person("Maria Valentina", "Clavijo Mesa",
+                   email = "valentina.clavijo@usp.br",
+                   role = c("aut", "cre"))
+Description: An R package for reproducible analysis of spatial dependence in environmental
+             and climate-related variables. The package provides a unified workflow to
+             ingest spatial datasets, estimate and visualize spatial correlation structures,
+             fit multiple dependence models including vine copulas (C-vine and D-vine),
+             Gaussian models, and stochastic fields, and compare them using quantitative
+             indicators to support model selection. Based on the selected model, the package
+             enables the generation of spatially dependent pseudoscenarios for uncertainty
+             analysis and simulation studies. The design emphasizes numerical robustness,
+             modularity, and reproducibility across heterogeneous spatial data sources.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
