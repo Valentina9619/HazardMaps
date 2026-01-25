@@ -11,10 +11,19 @@ hm_standardize_coords(x)
 }
 \value{
 The same `hm_hazard` object, but with `x$coords` replaced by a data.frame
-  containing at least `cell_id`, `lat`, and `lon`. If available, `rlat` and `rlon`
-  are also included.
+  containing at least `cell_id`, `lat`, and `lon`. Additional columns may be included
+  when available (e.g., rotated-grid indices).
 }
 \description{
-Converts raw NetCDF coordinates (regular 1D lat/lon or rotated/curvilinear 2D lat/lon)
-into a canonical coordinate table with one row per grid cell.
+Converts raw NetCDF coordinates into a canonical coordinate table with one row
+per grid cell.
+}
+\details{
+Two coordinate encodings are supported:
+\itemize{
+  \item \strong{Regular grids:} latitude and longitude provided as 1D coordinates
+  (either pure vectors or 1D arrays with dimension attributes).
+  \item \strong{Curvilinear/rotated grids:} latitude and longitude provided as 2D arrays
+  (e.g., \code{lat(rlat, rlon)} and \code{lon(rlat, rlon)}).
+}
 }

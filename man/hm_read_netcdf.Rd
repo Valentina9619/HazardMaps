@@ -19,3 +19,14 @@ An object of class `hm_hazard`.
 Reads a NetCDF file containing a hazard variable on a spatial grid (regular or rotated)
 and returns a basic `hm_hazard` object. CRS is NOT required.
 }
+\details{
+The function supports NetCDF files following common CF conventions for spatial
+coordinates. Latitude and longitude may be provided either as coordinate variables
+or as dimension coordinates, and may be encoded as:
+\itemize{
+  \item one-dimensional regular grids (e.g., Copernicus / ERA5 products),
+  \item two-dimensional curvilinear or rotated grids (e.g., EURO-CORDEX products).
+}
+Coordinate names \code{lat}/\code{lon} and \code{latitude}/\code{longitude}
+are automatically detected.
+}

@@ -3,6 +3,17 @@
 #' Reads a NetCDF file containing a hazard variable on a spatial grid (regular or rotated)
 #' and returns a basic `hm_hazard` object. CRS is NOT required.
 #'
+#' @details
+#' The function supports NetCDF files following common CF conventions for spatial
+#' coordinates. Latitude and longitude may be provided either as coordinate variables
+#' or as dimension coordinates, and may be encoded as:
+#' \itemize{
+#'   \item one-dimensional regular grids (e.g., Copernicus / ERA5 products),
+#'   \item two-dimensional curvilinear or rotated grids (e.g., EURO-CORDEX products).
+#' }
+#' Coordinate names \code{lat}/\code{lon} and \code{latitude}/\code{longitude}
+#' are automatically detected.
+#'
 #' @param file Path to a NetCDF file.
 #' @param var Optional. Name of the hazard variable. If `NULL` and multiple variables exist,
 #'   an error is raised (safe default).
@@ -26,8 +37,14 @@ hm_read_netcdf <- function(file, var = NULL) {if (!is.character(file) || length(
                                               time_vals <- ncdf4::ncvar_get(nc, "time")
                                               time_units <- ncdf4::ncatt_get(nc, "time", "units")$value
 
-                                              lon <- if ("lon" %in% names(nc$var)) ncdf4::ncvar_get(nc, "lon") else if ("longitude" %in% names(nc$var)) ncdf4::ncvar_get(nc, "longitude") else NULL
-                                              lat <- if ("lat" %in% names(nc$var)) ncdf4::ncvar_get(nc, "lat") else if ("latitude" %in% names(nc$var)) ncdf4::ncvar_get(nc, "latitude") else NULL
+
+                                              lon <- if ("lon" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "lon")} else if ("longitude" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "longitude")}
+                                                else if ("lon" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "lon")} else if ("longitude" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "longitude")}
+                                                else {NULL}
+
+                                              lat <- if ("lat" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "lat")} else if ("latitude" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "latitude")}
+                                                else if ("lat" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "lat")} else if ("latitude" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "latitude")}
+                                                else {NULL}
 
                                               rlon <- if ("rlon" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlon") else NULL
                                               rlat <- if ("rlat" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlat") else NULL
@@ -48,14 +65,23 @@ hm_read_netcdf <- function(file, var = NULL) {if (!is.character(file) || length(
 
 #' Standardize spatial coordinates
 #'
-#' Converts raw NetCDF coordinates (regular 1D lat/lon or rotated/curvilinear 2D lat/lon)
-#' into a canonical coordinate table with one row per grid cell.
+#' Converts raw NetCDF coordinates into a canonical coordinate table with one row
+#' per grid cell.
+#'
+#' @details
+#' Two coordinate encodings are supported:
+#' \itemize{
+#'   \item \strong{Regular grids:} latitude and longitude provided as 1D coordinates
+#'   (either pure vectors or 1D arrays with dimension attributes).
+#'   \item \strong{Curvilinear/rotated grids:} latitude and longitude provided as 2D arrays
+#'   (e.g., \code{lat(rlat, rlon)} and \code{lon(rlat, rlon)}).
+#' }
 #'
 #' @param x An `hm_hazard` object returned by [hm_read_netcdf()].
 #'
 #' @return The same `hm_hazard` object, but with `x$coords` replaced by a data.frame
-#'   containing at least `cell_id`, `lat`, and `lon`. If available, `rlat` and `rlon`
-#'   are also included.
+#'   containing at least `cell_id`, `lat`, and `lon`. Additional columns may be included
+#'   when available (e.g., rotated-grid indices).
 #' @export
 hm_standardize_coords <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
                                       if (is.null(x$coords) || !is.list(x$coords)) stop("`x$coords` must be a list with lat/lon.")
@@ -66,11 +92,21 @@ hm_standardize_coords <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(
                                       rlat <- x$coords$rlat; rlon <- x$coords$rlon
 
                                       # Case 1: regular grid (lat/lon 1D)
-                                      if (is.vector(lat) && is.vector(lon) && length(dim(lat)) == 0L && length(dim(lon)) == 0L) {g <- expand.grid(lat = lat, lon = lon)
-                                                                                                                                 g$cell_id <- seq_len(nrow(g))
-                                                                                                                                 g <- g[, c("cell_id","lat","lon")]
-                                                                                                                                 x$coords <- g
-                                                                                                                                 return(x)}
+                                      lat_dim <- dim(lat)
+                                      lon_dim <- dim(lon)
+
+                                      is_lat_1d <- is.null(lat_dim) || length(lat_dim) == 1L
+                                      is_lon_1d <- is.null(lon_dim) || length(lon_dim) == 1L
+
+                                      if (is.numeric(lat) && is.numeric(lon) && is_lat_1d && is_lon_1d) {latv <- as.vector(lat)
+                                                                                                         lonv <- as.vector(lon)
+
+                                                                                                         g <- expand.grid(lat = latv, lon = lonv)
+                                                                                                         g$cell_id <- seq_len(nrow(g))
+                                                                                                         g <- g[, c("cell_id","lat","lon")]
+                                                                                                         x$coords <- g
+                                                                                                         return(x)}
+
 
                                       # Case 2: rotated/curvilinear grid (lat/lon 2D arrays)
                                       if (length(dim(lat)) == 2L && length(dim(lon)) == 2L) {dlat <- dim(lat); dlon <- dim(lon)

@@ -1,0 +1,21 @@
+test_that("EuroCordex windgust dailymax NetCDF 1970 to 2005", {f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc", package = "HazardMaps")
+
+                                                               expect_true(nzchar(f))
+                                                               expect_true(file.exists(f))
+
+                                                               x <- hm_read_netcdf(f, var = "wsgsmax")
+                                                               expect_equal(x$meta$grid_type, "rotated")
+
+                                                               x <- hm_standardize_coords(x)
+                                                               x <- hm_decode_time(x)
+                                                               X <- hm_to_matrix(x)
+
+                                                               expect_true(is.matrix(X))
+                                                               expect_equal(dim(X), c(13149L, 1872L))
+
+                                                               coords <- attr(X, "coords")
+                                                               expect_true(is.data.frame(coords))
+                                                               expect_true(all(c("cell_id", "lat", "lon") %in% names(coords)))
+
+                                                               if (all(c("rlat", "rlon") %in% names(coords))) {expect_true(is.numeric(coords$rlat))
+                                                                                                               expect_true(is.numeric(coords$rlon))}})
