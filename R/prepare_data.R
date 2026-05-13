@@ -55,9 +55,10 @@ hm_read_netcdf <- function(file, var = NULL) {if (!is.character(file) || length(
                                                           coords = list(lat = lat, lon = lon, rlat = rlat, rlon = rlon),
                                                           time = list(values = time_vals, units = time_units),
                                                           meta = list(variable = var,
-                                                          grid_type = grid_type,
-                                                          reader = "ncdf4",
-                                                          file = normalizePath(file, winslash = "/", mustWork = FALSE)))
+                                                                      grid_type = grid_type,
+                                                                      reader = "ncdf4",
+                                                                      file = normalizePath(file, winslash = "/", mustWork = FALSE))
+                                                          )
                                               class(out) <- c("hm_hazard", "list")
                                               out}
 
@@ -85,44 +86,106 @@ hm_read_netcdf <- function(file, var = NULL) {if (!is.character(file) || length(
 #' @export
 hm_standardize_coords <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
                                       if (is.null(x$coords) || !is.list(x$coords)) stop("`x$coords` must be a list with lat/lon.")
-                                      lat <- x$coords$lat; lon <- x$coords$lon
-                                      if (is.null(lat) || is.null(lon)) stop("Missing lat/lon in `x$coords`. Supported names are lat/lon or latitude/longitude in the NetCDF.")
-                                      if (!is.numeric(lat) || !is.numeric(lon)) stop("lat/lon must be numeric.")
 
+                                      lat <- x$coords$lat; lon <- x$coords$lon
                                       rlat <- x$coords$rlat; rlon <- x$coords$rlon
 
-                                      # Case 1: regular grid (lat/lon 1D)
-                                      lat_dim <- dim(lat)
-                                      lon_dim <- dim(lon)
+                                      if ((is.null(dim(lat)) || length(dim(lat)) == 1) && (is.null(dim(lon)) || length(dim(lon)) == 1)) {latv <- as.vector(lat)
+                                                                                                                                         lonv <- as.vector(lon)
 
-                                      is_lat_1d <- is.null(lat_dim) || length(lat_dim) == 1L
-                                      is_lon_1d <- is.null(lon_dim) || length(lon_dim) == 1L
+                                                                                                                                         g <- expand.grid(lat = latv, lon = lonv)
+                                                                                                                                         g$cell_id <- seq_len(nrow(g))
+                                                                                                                                         g <- g[, c("cell_id","lat","lon")]
 
-                                      if (is.numeric(lat) && is.numeric(lon) && is_lat_1d && is_lon_1d) {latv <- as.vector(lat)
-                                                                                                         lonv <- as.vector(lon)
+                                                                                                                                         x$coords <- g
+                                                                                                                                         return(x)}
 
-                                                                                                         g <- expand.grid(lat = latv, lon = lonv)
-                                                                                                         g$cell_id <- seq_len(nrow(g))
-                                                                                                         g <- g[, c("cell_id","lat","lon")]
-                                                                                                         x$coords <- g
-                                                                                                         return(x)}
+                                       if (is.matrix(lat) && is.matrix(lon)) {d <- dim(lat)
+                                                                              n <- d[1] * d[2]
+
+                                                                              g <- data.frame(cell_id = seq_len(n),
+                                                                                              lat = as.vector(lat),
+                                                                                              lon = as.vector(lon))
+
+                                                                              if (!is.null(rlat) && !is.null(rlon)) {idx <- expand.grid(rlon = rlon, rlat = rlat)
+                                                                                                                     if (nrow(idx) == n) {g$rlon <- idx$rlon
+                                                                                                                                          g$rlat <- idx$rlat}
+                                                                                                                    }
+
+                                                                               x$coords <- g
+                                                                               return(x)}
+
+                                       stop("Unsupported coordinate structure.")}
 
 
-                                      # Case 2: rotated/curvilinear grid (lat/lon 2D arrays)
-                                      if (length(dim(lat)) == 2L && length(dim(lon)) == 2L) {dlat <- dim(lat); dlon <- dim(lon)
-                                                                                             if (any(dlat != dlon)) stop("lat and lon dimensions do not match.")
-                                                                                             n <- dlat[[1L]] * dlat[[2L]]
-                                                                                             g <- data.frame(cell_id = seq_len(n),
-                                                                                                             lat = as.vector(lat),
-                                                                                                             lon = as.vector(lon))
-                                                                                             # attach rlat/rlon if present and consistent
-                                                                                             if (!is.null(rlat) && !is.null(rlon) && is.vector(rlat) && is.vector(rlon) && length(rlat) == dlat[[1L]] && length(rlon) == dlat[[2L]]) {idx <- expand.grid(rlat = rlat, rlon = rlon)
-                                                                                                                                                                                                                                      g$rlat <- idx$rlat
-                                                                                                                                                                                                                                      g$rlon <- idx$rlon}
-                                                                                              x$coords <- g
-                                                                                              return(x)}
 
-                                      stop("Unsupported lat/lon structure. Expected 1D (regular grid) or 2D (rotated/curvilinear grid).")}
+#' Extract grid geometry from hazard object
+#'
+#' Computes spatial grid information required for visualization.
+#' This function derives the grid shape, spacing and bounding box
+#' from the coordinate information contained in the hazard object.
+#'
+#' @param x An `hm_hazard` object after [hm_standardize_coords()].
+#'
+#' @return The input object with an additional `grid` element
+#' containing:
+#'   - `nx`, `ny` grid dimensions
+#'   - `dx`, `dy` approximate grid spacing (NA for rotated grids)
+#'   - `bbox` bounding box of the spatial domain
+#'   - `n_cells` total number of grid cells
+#'   - `grid_type` grid classification ("regular" or "rotated")
+#'
+#' @export
+hm_get_grid_geometry <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x))
+                                      stop("`x` must be an object of class `hm_hazard`.")
+
+                                     if (is.null(x$coords) || !is.data.frame(x$coords))
+                                      stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+
+                                     lon <- x$coords$lon
+                                     lat <- x$coords$lat
+
+                                     if (is.null(lon) || is.null(lat))
+                                      stop("Coordinates must contain `lon` and `lat`.")
+
+                                     bbox <- c(lon_min = min(lon, na.rm = TRUE),
+                                               lon_max = max(lon, na.rm = TRUE),
+                                               lat_min = min(lat, na.rm = TRUE),
+                                               lat_max = max(lat, na.rm = TRUE))
+
+                                     n_cells <- nrow(x$coords)
+
+                                     grid_type <- if (!is.null(x$meta$grid_type)) x$meta$grid_type else NA_character_
+
+                                     if (!is.na(grid_type) && grid_type == "rotated")
+                                       {if (all(c("rlon","rlat") %in% names(x$coords))) {nx <- length(unique(x$coords$rlon))
+                                                                                        ny <- length(unique(x$coords$rlat))
+                                                                                        } else {nx <- NA_integer_
+                                                                                                ny <- NA_integer_}
+
+                                        dlon <- NA_real_
+                                        dlat <- NA_real_
+                                     }
+                                     else {lon_u <- sort(unique(lon))
+                                           lat_u <- sort(unique(lat))
+
+                                           nx <- length(lon_u)
+                                           ny <- length(lat_u)
+
+                                           dlon <- if (length(lon_u) > 1) stats::median(diff(lon_u), na.rm = TRUE) else NA_real_
+                                           dlat <- if (length(lat_u) > 1) stats::median(diff(lat_u), na.rm = TRUE) else NA_real_
+
+                                            if (nx * ny != n_cells) {nx <- NA_integer_
+                                                                     ny <- NA_integer_}
+                                          }
+
+                                     x$grid <- list(nx = nx, ny = ny,
+                                                    dx = dlon, dy = dlat,
+                                                    bbox = bbox,
+                                                    n_cells = n_cells,
+                                                    grid_type = grid_type)
+
+                                     x}
 
 
 
@@ -195,10 +258,4 @@ hm_to_matrix <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x)) stop(
                              attr(X, "time") <- x$time
                              attr(X, "coords") <- x$coords
                              X}
-
-
-
-
-
-
 
