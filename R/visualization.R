@@ -1,4 +1,4 @@
-if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id"))}
+if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id", "poly_id", "exceedance_value"))}
 
 #' Validate spatial bounding box
 #'
@@ -318,9 +318,9 @@ if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id
                                                p <- .hm_base_domain_plot(bbox, show_map = show_map)
 
                                                p <- p + ggplot2::geom_path(data = grid_lines,
-                                                        ggplot2::aes(x = lon, y = lat, group = group_id),
-                                                                     colour = grid_colour,
-                                                                     linewidth = grid_linewidth)
+                                                                           ggplot2::aes(x = lon, y = lat, group = group_id),
+                                                                           colour = grid_colour,
+                                                                           linewidth = grid_linewidth)
 
                           if (isTRUE(show_points)) {point_coords <- coords[coords$lon >= bbox[["lon_min"]] &
                                                                     coords$lon <= bbox[["lon_max"]] &
@@ -328,9 +328,9 @@ if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id
                                                                     coords$lat <= bbox[["lat_max"]], , drop = FALSE]
 
                                                    p <- p + ggplot2::geom_point(data = point_coords,
-                                                            ggplot2::aes(x = lon, y = lat),
-                                                                         inherit.aes = FALSE,
-                                                                         size = point_size)}
+                                                                                ggplot2::aes(x = lon, y = lat),
+                                                                                inherit.aes = FALSE,
+                                                                                size = point_size)}
 
                           .hm_format_domain_plot(p, bbox = bbox, title = title, coord = coord)}
 
@@ -370,9 +370,9 @@ if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id
                                                p <- .hm_base_domain_plot(bbox, show_map = show_map)
 
                                                 p <- p + ggplot2::geom_path(data = grid_lines,
-                                                         ggplot2::aes(x = lon, y = lat, group = group_id),
-                                                                      colour = grid_colour,
-                                                                      linewidth = grid_linewidth)
+                                                                            ggplot2::aes(x = lon, y = lat, group = group_id),
+                                                                            colour = grid_colour,
+                                                                            linewidth = grid_linewidth)
 
                            if (isTRUE(show_points)) {point_coords <- coords[coords$lon >= bbox[["lon_min"]] &
                                                      coords$lon <= bbox[["lon_max"]] &
@@ -380,9 +380,9 @@ if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id
                                                      coords$lat <= bbox[["lat_max"]], , drop = FALSE]
 
                                                      p <- p + ggplot2::geom_point(data = point_coords,
-                                                              ggplot2::aes(x = lon, y = lat),
-                                                              inherit.aes = FALSE,
-                                                              size = point_size)}
+                                                                                  ggplot2::aes(x = lon, y = lat),
+                                                                                  inherit.aes = FALSE,
+                                                                                  size = point_size)}
 
                           .hm_format_domain_plot(p, bbox = bbox, title = title, coord = coord)}
 
@@ -458,3 +458,301 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
                                                         grid_linewidth = grid_linewidth,
                                                         point_size = point_size,
                                                         coord = coord)}}
+
+
+
+
+
+#' Compute exceedance metrics by grid cell
+#'
+#' @param x An `hm_hazard` object after [hm_standardize_coords()].
+#' @param threshold Numeric threshold used to define exceedances.
+#'
+#' @return A data.frame with coordinates and exceedance metrics.
+#' @noRd
+.hm_exceedance_metrics <- function(x, threshold)
+                          {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                           if (is.null(x$coords) || !is.data.frame(x$coords)) stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+                           if (!all(c("lon","lat") %in% names(x$coords))) stop("`x$coords` must contain `lon` and `lat` columns.")
+                           if (!is.numeric(threshold) || length(threshold) != 1L || !is.finite(threshold)) stop("`threshold` must be one finite numeric value.")
+
+                           if (is.null(x$time) || !inherits(x$time, c("Date","POSIXct","POSIXt"))) {x <- hm_decode_time(x)}
+
+                           X <- hm_to_matrix(x)
+                           coords <- attr(X, "coords")
+
+                           if (is.null(coords) || !is.data.frame(coords)) stop("No coordinate metadata found in `hm_to_matrix()` output.")
+                           if (ncol(X) != nrow(coords)) stop("Number of matrix columns and coordinate rows are not consistent.")
+
+                           valid_n <- colSums(!is.na(X))
+                           count <- colSums(X >= threshold, na.rm = TRUE)
+
+                           coords$exceedance_count <- as.integer(count)
+                           coords$exceedance_frequency <- ifelse(valid_n > 0, count / valid_n, NA_real_)
+
+                           coords}
+
+
+
+#' Build regular-grid exceedance polygons
+#'
+#' @param coords Coordinate data.frame with exceedance metrics.
+#' @param bbox Named bounding box used to select cell centres.
+#' @param grid_res Optional grid resolution in degrees.
+#' @param metric Metric to plot.
+#'
+#' @return A data.frame of cell polygons.
+#' @noRd
+.hm_exceedance_regular_polygons <- function(coords, bbox, grid_res = NULL, metric = "count")
+                                   {if (is.null(grid_res)) {dx <- .hm_regular_spacing(coords$lon)
+                                                            dy <- .hm_regular_spacing(coords$lat)}
+                                    else {if (!is.numeric(grid_res) || length(grid_res) != 1L || !is.finite(grid_res) || grid_res <= 0) stop("`grid_res` must be a positive numeric value.")
+                                          dx <- grid_res
+                                          dy <- grid_res}
+
+                                    z <- coords[coords$lon >= bbox[["lon_min"]] &
+                                         coords$lon <= bbox[["lon_max"]] &
+                                         coords$lat >= bbox[["lat_min"]] &
+                                         coords$lat <= bbox[["lat_max"]], , drop = FALSE]
+
+                                    if (nrow(z) == 0L) stop("No grid cells intersect `bbox`.")
+
+                                    value <- if (metric == "frequency") z$exceedance_frequency else z$exceedance_count
+
+                                    do.call(rbind,
+                                            lapply(seq_len(nrow(z)),
+                                            function(k) {lon0 <- z$lon[k]
+                                                         lat0 <- z$lat[k]
+
+                                            data.frame(poly_id = paste0("cell_", k),
+                                                       lon = c(lon0 - dx / 2, lon0 + dx / 2,
+                                                               lon0 + dx / 2, lon0 - dx / 2,
+                                                               lon0 - dx / 2),
+                                                       lat = c(lat0 - dy / 2, lat0 - dy / 2,
+                                                               lat0 + dy / 2, lat0 + dy / 2,
+                                                               lat0 - dy / 2),
+                                                       exceedance_value = value[k])}))}
+
+
+
+#' Build a corner matrix from cell-centre coordinates
+#'
+#' @param z Numeric matrix of cell-centre coordinates.
+#'
+#' @return Numeric matrix of cell-corner coordinates.
+#' @noRd
+.hm_exceedance_corner_matrix <- function(z)
+                                {nr <- nrow(z)
+                                 nc <- ncol(z)
+
+                                 if (nr < 2L || nc < 2L) stop("At least two rows and two columns are required to build rotated-grid polygons.")
+
+                                 e <- matrix(NA_real_, nrow = nr + 2L, ncol = nc + 2L)
+                                 e[2:(nr + 1L), 2:(nc + 1L)] <- z
+
+                                 e[1L, 2:(nc + 1L)] <- 2 * z[1L, ] - z[2L, ]
+                                 e[nr + 2L, 2:(nc + 1L)] <- 2 * z[nr, ] - z[nr - 1L, ]
+
+                                 e[2:(nr + 1L), 1L] <- 2 * z[, 1L] - z[, 2L]
+                                 e[2:(nr + 1L), nc + 2L] <- 2 * z[, nc] - z[, nc - 1L]
+
+                                 e[1L, 1L] <- 2 * e[1L, 2L] - e[1L, 3L]
+                                 e[1L, nc + 2L] <- 2 * e[1L, nc + 1L] - e[1L, nc]
+                                 e[nr + 2L, 1L] <- 2 * e[nr + 2L, 2L] - e[nr + 2L, 3L]
+                                 e[nr + 2L, nc + 2L] <- 2 * e[nr + 2L, nc + 1L] - e[nr + 2L, nc]
+
+                                 out <- matrix(NA_real_, nrow = nr + 1L, ncol = nc + 1L)
+
+                                 for (i in seq_len(nr + 1L)) {for (j in seq_len(nc + 1L)) {out[i, j] <- mean(e[i:(i + 1L), j:(j + 1L)], na.rm = TRUE)}}
+
+                                 out}
+
+
+
+#' Build rotated-grid exceedance polygons
+#'
+#' @param coords Coordinate data.frame with rotated-grid coordinates and exceedance metrics.
+#' @param bbox Named bounding box used to select cell centres.
+#' @param metric Metric to plot.
+#'
+#' @return A data.frame of cell polygons.
+#' @noRd
+.hm_exceedance_rotated_polygons <- function(coords, bbox, metric = "count")
+                                   {if (!all(c("lon","lat","rlon","rlat","exceedance_count","exceedance_frequency") %in% names(coords))) stop("Rotated grids require `lon`, `lat`, `rlon`, `rlat`, and exceedance metrics.")
+
+                                    rlon_u <- sort(unique(coords$rlon))
+                                    rlat_u <- sort(unique(coords$rlat))
+
+                                    nr <- length(rlon_u)
+                                    nc <- length(rlat_u)
+
+                                    lon_mat <- matrix(NA_real_, nrow = nr, ncol = nc)
+                                    lat_mat <- matrix(NA_real_, nrow = nr, ncol = nc)
+
+                                    ii <- match(coords$rlon, rlon_u)
+                                    jj <- match(coords$rlat, rlat_u)
+
+                                    lon_mat[cbind(ii, jj)] <- coords$lon
+                                    lat_mat[cbind(ii, jj)] <- coords$lat
+
+                                    lon_corner <- .hm_exceedance_corner_matrix(lon_mat)
+                                    lat_corner <- .hm_exceedance_corner_matrix(lat_mat)
+
+                                    keep <- coords$lon >= bbox[["lon_min"]] &
+                                            coords$lon <= bbox[["lon_max"]] &
+                                            coords$lat >= bbox[["lat_min"]] &
+                                            coords$lat <= bbox[["lat_max"]]
+
+                                    if (!any(keep)) stop("No grid cells intersect `bbox`.")
+
+                                    value <- if (metric == "frequency") coords$exceedance_frequency else coords$exceedance_count
+
+                                    cells <- data.frame(i = ii[keep],
+                                                        j = jj[keep],
+                                                        value = value[keep])
+
+                                    do.call(rbind,
+                                            lapply(seq_len(nrow(cells)),
+                                    function(k) {i <- cells$i[k]
+                                                 j <- cells$j[k]
+
+                                    data.frame(poly_id = paste0("cell_", k),
+                                               lon = c(lon_corner[i, j],
+                                                       lon_corner[i + 1L, j],
+                                                       lon_corner[i + 1L, j + 1L],
+                                                       lon_corner[i, j + 1L],
+                                                       lon_corner[i, j]),
+                                               lat = c(lat_corner[i, j],
+                                                       lat_corner[i + 1L, j],
+                                                       lat_corner[i + 1L, j + 1L],
+                                                       lat_corner[i, j + 1L],
+                                                       lat_corner[i, j]),
+                                               exceedance_value = cells$value[k])}))}
+
+
+
+#' Build bounding box from polygon coordinates
+#'
+#' @param cells Polygon data.frame with `lon` and `lat`.
+#'
+#' @return A named numeric bounding box.
+#' @noRd
+.hm_exceedance_polygon_bbox <- function(cells)
+                               {if (is.null(cells) || !is.data.frame(cells)) stop("`cells` must be a data.frame.")
+                                if (!all(c("lon","lat") %in% names(cells))) stop("`cells` must contain `lon` and `lat` columns.")
+
+                                c(lon_min = min(cells$lon, na.rm = TRUE),
+                                  lon_max = max(cells$lon, na.rm = TRUE),
+                                  lat_min = min(cells$lat, na.rm = TRUE),
+                                  lat_max = max(cells$lat, na.rm = TRUE))}
+
+
+
+#' Merge two bounding boxes
+#'
+#' @param bbox_a First named bounding box.
+#' @param bbox_b Second named bounding box.
+#'
+#' @return A named numeric bounding box covering both inputs.
+#' @noRd
+.hm_exceedance_union_bbox <- function(bbox_a, bbox_b)
+                             {bbox_a <- bbox_a[c("lon_min","lon_max","lat_min","lat_max")]
+                              bbox_b <- bbox_b[c("lon_min","lon_max","lat_min","lat_max")]
+
+                              c(lon_min = min(bbox_a[["lon_min"]], bbox_b[["lon_min"]]),
+                                lon_max = max(bbox_a[["lon_max"]], bbox_b[["lon_max"]]),
+                                lat_min = min(bbox_a[["lat_min"]], bbox_b[["lat_min"]]),
+                                lat_max = max(bbox_a[["lat_max"]], bbox_b[["lat_max"]]))}
+
+
+
+#' Plot threshold exceedances
+#'
+#' Plots threshold exceedance count or frequency at each spatial grid cell.
+#'
+#' @details
+#' Exceedances are defined as time steps for which the hazard value is greater
+#' than or equal to `threshold`.
+#'
+#' By default, the function plots absolute exceedance count, i.e. the number of
+#' valid time steps exceeding the threshold at each grid cell. Set
+#' `metric = "frequency"` to plot the fraction of valid time steps exceeding the
+#' threshold.
+#'
+#' Filled cells are drawn using cell-boundary polygons. Therefore, the colour
+#' layer and the visible grid correspond to the same cell geometry.
+#'
+#' @param x An `hm_hazard` object after [hm_standardize_coords()].
+#' @param threshold Numeric threshold used to define exceedances.
+#' @param metric Metric to plot. Either `"count"` or `"frequency"`.
+#' @param dataset Dataset/grid type. One of `"auto"`, `"copernicus"`,
+#'   `"eurocordex"`, `"regular"`, or `"rotated"`.
+#' @param bbox Optional named numeric vector with `lon_min`, `lon_max`, `lat_min`,
+#'   and `lat_max`.
+#' @param title Optional plot title.
+#' @param show_map Logical. If `TRUE`, a world map is added when package `maps`
+#'   is available.
+#' @param show_grid Logical. If `TRUE`, draws cell borders.
+#' @param grid_res Optional grid resolution in degrees. Used only for regular grids.
+#' @param colours Colour vector used for the filled cells.
+#' @param grid_colour Colour used for cell borders.
+#' @param grid_linewidth Line width used for cell borders.
+#' @param cell_alpha Transparency of coloured cells.
+#' @param legend_title Optional legend title.
+#' @param coord Coordinate display method. Either `"fixed"` or `"quickmap"`.
+#'
+#' @return A `ggplot` object.
+#' @export
+hm_plot_exceedance <- function(x, threshold, metric = "count",
+                               dataset = "auto", bbox = NULL, title = NULL,
+                               show_map = TRUE, show_grid = TRUE,
+                               grid_res = NULL,
+                               colours = c("white", "gold", "orange", "firebrick"),
+                               grid_colour = "grey55", grid_linewidth = 0.25,
+                               cell_alpha = 0.9, legend_title = NULL,
+                               coord = "fixed")
+                      {metric <- match.arg(metric, c("count","frequency"))
+
+                       if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                       if (is.null(x$coords) || !is.data.frame(x$coords)) stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+                       if (!all(c("lon","lat") %in% names(x$coords))) stop("`x$coords` must contain `lon` and `lat` columns.")
+                       if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Package `ggplot2` is required.")
+
+                       coords <- .hm_exceedance_metrics(x, threshold)
+                       bbox <- .hm_validate_bbox(bbox, coords)
+                       plot_type <- .hm_resolve_plot_type(x, dataset = dataset)
+
+                       cells <- if (plot_type == "regular") {.hm_exceedance_regular_polygons(coords, bbox = bbox, grid_res = grid_res, metric = metric)}
+                                else {.hm_exceedance_rotated_polygons(coords, bbox = bbox, metric = metric)}
+
+                       cell_bbox <- .hm_exceedance_polygon_bbox(cells)
+                       plot_bbox <- .hm_exceedance_union_bbox(bbox, cell_bbox)
+
+                       if (is.null(title)) {title <- if (metric == "count") paste0("Exceedance count (threshold = ", threshold, ")")
+                       else paste0("Exceedance frequency (threshold = ", threshold, ")")}
+
+                       if (is.null(legend_title)) {legend_title <- if (metric == "count") "Exceedance days" else "Frequency"}
+
+                       p <- .hm_base_domain_plot(plot_bbox, show_map = show_map)
+
+                       p <- p + ggplot2::geom_polygon(data = cells,
+                                                      ggplot2::aes(x = lon,
+                                                                   y = lat,
+                                                                   group = poly_id,
+                                                                   fill = exceedance_value),
+                                                      colour = if (isTRUE(show_grid)) grid_colour else NA,
+                                                      linewidth = if (isTRUE(show_grid)) grid_linewidth else 0,
+                                                      alpha = cell_alpha)
+
+                      if (isTRUE(show_map) && requireNamespace("maps", quietly = TRUE)) {p <- p + ggplot2::borders(database = "world",
+                                                                                                                   fill = NA,
+                                                                                                                   colour = "black",
+                                                                                                                   linewidth = 0.25)}
+
+                      if (metric == "frequency") {p <- p + ggplot2::scale_fill_gradientn(colours = colours,
+                                                                                         name = legend_title,
+                                                                                         labels = function(z) paste0(round(100 * z, 2), "%"))}
+                      else {p <- p + ggplot2::scale_fill_gradientn(colours = colours,
+                                                                   name = legend_title)}
+
+                      .hm_format_domain_plot(p, bbox = plot_bbox, title = title, coord = coord)}

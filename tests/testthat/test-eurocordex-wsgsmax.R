@@ -41,3 +41,25 @@ test_that("EuroCordex spatial domain can be plotted", {f <- system.file("extdata
                                                                                    show_map = FALSE)
 
                                                        expect_true(inherits(p, "ggplot"))})
+
+
+test_that("EURO-CORDEX exceedance count can be plotted", {f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc", package = "HazardMaps")
+
+                                                          expect_true(nzchar(f))
+                                                          expect_true(file.exists(f))
+
+                                                          x <- hm_read_netcdf(f, var = "wsgsmax")
+                                                          x <- hm_standardize_coords(x)
+
+                                                          p <- hm_plot_exceedance(x,
+                                                                                  threshold = 25,
+                                                                                  metric = "count",
+                                                                                  dataset = "eurocordex",
+                                                                                  bbox = c(lon_min = 6.5,
+                                                                                           lon_max = 14.2,
+                                                                                           lat_min = 43.7,
+                                                                                           lat_max = 47.2),
+                                                                                  title = "Wind-gust exceedance count",
+                                                                                  show_map = FALSE)
+
+                                                          expect_true(inherits(p, "ggplot"))})

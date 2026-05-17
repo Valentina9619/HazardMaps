@@ -38,3 +38,25 @@ test_that("Copernicus dailymax spatial domain can be plotted", {f <- system.file
                                                                                             show_map = FALSE)
 
                                                                 expect_true(inherits(p, "ggplot"))})
+
+
+test_that("Copernicus exceedance count can be plotted", {f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc", package = "HazardMaps")
+
+                                                         expect_true(nzchar(f))
+                                                         expect_true(file.exists(f))
+
+                                                         x <- hm_read_netcdf(f, var = "i10fg")
+                                                         x <- hm_standardize_coords(x)
+
+                                                         p <- hm_plot_exceedance(x,
+                                                                                 threshold = 25,
+                                                                                 metric = "count",
+                                                                                 dataset = "copernicus",
+                                                                                 bbox = c(lon_min = 11.5,
+                                                                                          lon_max = 15.0,
+                                                                                          lat_min = 44.0,
+                                                                                          lat_max = 47.0),
+                                                                                 title = "Wind-gust exceedance count",
+                                                                                 show_map = FALSE)
+
+                                                         expect_true(inherits(p, "ggplot"))})
