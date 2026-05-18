@@ -1,4 +1,4 @@
-if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id", "poly_id", "exceedance_value"))}
+if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id", "poly_id", "exceedance_value", "period_label"))}
 
 #' Validate spatial bounding box
 #'
@@ -756,3 +756,122 @@ hm_plot_exceedance <- function(x, threshold, metric = "count",
                                                                    name = legend_title)}
 
                       .hm_format_domain_plot(p, bbox = plot_bbox, title = title, coord = coord)}
+
+
+
+#' Summarize extreme-event days by time period
+#'
+#' @param x An `hm_hazard` object after [hm_standardize_coords()].
+#' @param threshold Numeric threshold used to define exceedances.
+#' @param by Temporal aggregation. One of `"year"`, `"2_years"`, `"5_years"`,
+#'   or `"decade"`.
+#'
+#' @return A data.frame with the number of extreme-event days by time period.
+#' @noRd
+.hm_exceedance_time_summary <- function(x, threshold, by = "year")
+                               {by <- match.arg(by, c("year","2_years","5_years","decade"))
+
+                               if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                               if (is.null(x$coords) || !is.data.frame(x$coords)) stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+                               if (!is.numeric(threshold) || length(threshold) != 1L || !is.finite(threshold)) stop("`threshold` must be one finite numeric value.")
+
+                               if (is.null(x$time) || !inherits(x$time, c("Date","POSIXct","POSIXt"))) {x <- hm_decode_time(x)}
+
+                               X <- hm_to_matrix(x)
+
+                               if (nrow(X) != length(x$time)) stop("Number of matrix rows and time steps are not consistent.")
+
+                               time <- as.Date(x$time)
+                               year <- as.integer(format(time, "%Y"))
+
+                               step <- switch(by,
+                                              year = 1L,
+                                              `2_years` = 2L,
+                                              `5_years` = 5L,
+                                              decade = 10L)
+
+                               period_start <- floor(year / step) * step
+                               period_end <- period_start + step - 1L
+
+                               valid_cells <- rowSums(!is.na(X))
+                               exceed_cells <- rowSums(X >= threshold, na.rm = TRUE)
+
+                               event_day <- as.integer(valid_cells > 0 & exceed_cells > 0)
+
+                               out <- stats::aggregate(event_day,
+                                                       by = list(period_start = period_start,
+                                                                 period_end = period_end),
+                                                       FUN = sum,
+                                                       na.rm = TRUE)
+
+                               names(out)[names(out) == "x"] <- "exceedance_value"
+
+                               out <- out[order(out$period_start), , drop = FALSE]
+
+                               if (step == 1L) {out$period_label <- as.character(out$period_start)}
+                               else {out$period_label <- paste0(out$period_start, "-", out$period_end)}
+
+                               out$period_label <- factor(out$period_label, levels = out$period_label)
+                               out}
+
+
+
+#' Plot extreme-event days over time
+#'
+#' Plots the number of extreme-event days aggregated by year, two-year periods,
+#' five-year periods, or decades.
+#'
+#' @details
+#' An extreme-event day is counted when at least one grid cell in the spatial
+#' domain has a hazard value greater than or equal to `threshold`.
+#'
+#' Therefore, each day is counted at most once, independently of how many grid
+#' cells exceed the threshold on that day.
+#'
+#' @param x An `hm_hazard` object after [hm_standardize_coords()].
+#' @param threshold Numeric threshold used to define exceedances.
+#' @param by Temporal aggregation. One of `"year"`, `"2_years"`, `"5_years"`,
+#'   or `"decade"`.
+#' @param title Optional plot title.
+#' @param xlab Optional x-axis label.
+#' @param ylab Optional y-axis label.
+#' @param bar_fill Bar fill colour.
+#' @param bar_colour Bar border colour.
+#'
+#' @return A `ggplot` object.
+#' @export
+hm_plot_exceedance_time <- function(x, threshold, by = "year",
+                                    title = NULL, xlab = NULL, ylab = NULL,
+                                    bar_fill = "grey70",
+                                    bar_colour = "grey30")
+                           {by <- match.arg(by, c("year","2_years","5_years","decade"))
+
+                            if (!requireNamespace("ggplot2", quietly = TRUE)) stop("Package `ggplot2` is required.")
+
+                            dat <- .hm_exceedance_time_summary(x = x,
+                                                               threshold = threshold,
+                                                               by = by)
+
+                            if (is.null(title)) {title <- paste0("Extreme-event days (threshold = ", threshold, ")")}
+
+                            if (is.null(xlab)) {xlab <- switch(by,
+                                                               year = "Year",
+                                                               `2_years` = "Two-year period",
+                                                               `5_years` = "Five-year period",
+                                                               decade = "Decade")}
+
+                            if (is.null(ylab)) {ylab <- "Extreme-event days"}
+
+                                                ggplot2::ggplot(dat,
+                                                                ggplot2::aes(x = period_label,
+                                                                             y = exceedance_value)) +
+                                                                ggplot2::geom_col(fill = bar_fill,
+                                                                                  colour = bar_colour,
+                                                                                  linewidth = 0.25) +
+                                                                ggplot2::labs(title = title,
+                                                                              x = xlab,
+                                                                              y = ylab) +
+                                                                ggplot2::theme_minimal(base_size = 12) +
+                                                                ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5),
+                                                                               axis.text.x = ggplot2::element_text(angle = 45,
+                                                                               hjust = 1))}

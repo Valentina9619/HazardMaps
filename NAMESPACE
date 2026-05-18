@@ -3,6 +3,7 @@
 export(hm_decode_time)
 export(hm_get_grid_geometry)
 export(hm_plot_exceedance)
+export(hm_plot_exceedance_time)
 export(hm_plot_spatial_domain)
 export(hm_read_netcdf)
 export(hm_standardize_coords)

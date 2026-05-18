@@ -63,3 +63,25 @@ test_that("EURO-CORDEX exceedance count can be plotted", {f <- system.file("extd
                                                                                   show_map = FALSE)
 
                                                           expect_true(inherits(p, "ggplot"))})
+
+
+test_that("EURO-CORDEX exceedance time plot works", {f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc", package = "HazardMaps")
+
+                                                     expect_true(nzchar(f))
+                                                     expect_true(file.exists(f))
+
+                                                     x <- hm_read_netcdf(f, var = "wsgsmax")
+                                                     x <- hm_standardize_coords(x)
+
+                                                     p_2y <- hm_plot_exceedance_time(x,
+                                                                                     threshold = 25,
+                                                                                     by = "2_years",
+                                                                                     title = "EURO-CORDEX extreme-event days by 2-year period")
+
+                                                     p_decade <- hm_plot_exceedance_time(x,
+                                                                                         threshold = 25,
+                                                                                         by = "decade",
+                                                                                         title = "EURO-CORDEX extreme-event days by decade")
+
+                                                     expect_true(inherits(p_2y, "ggplot"))
+                                                     expect_true(inherits(p_decade, "ggplot"))})

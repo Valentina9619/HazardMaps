@@ -60,3 +60,25 @@ test_that("Copernicus exceedance count can be plotted", {f <- system.file("extda
                                                                                  show_map = FALSE)
 
                                                          expect_true(inherits(p, "ggplot"))})
+
+
+test_that("Copernicus exceedance time plot works", {f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc", package = "HazardMaps")
+
+                                                    expect_true(nzchar(f))
+                                                    expect_true(file.exists(f))
+
+                                                    x <- hm_read_netcdf(f, var = "i10fg")
+                                                    x <- hm_standardize_coords(x)
+
+                                                    p_year <- hm_plot_exceedance_time(x,
+                                                                                      threshold = 25,
+                                                                                      by = "year",
+                                                                                      title = "Copernicus extreme-event days by year")
+
+                                                    p_5y <- hm_plot_exceedance_time(x,
+                                                                                    threshold = 25,
+                                                                                    by = "5_years",
+                                                                                    title = "Copernicus extreme-event days by 5-year period")
+
+                                                    expect_true(inherits(p_year, "ggplot"))
+                                                    expect_true(inherits(p_5y, "ggplot"))})
