@@ -1,5 +1,7 @@
 # HazardMaps
 
+<img src="man/figures/logo.png" align="right" height="160" alt="HazardMaps logo" />
+
 HazardMaps is an R package for reproducible analysis of spatial dependence
 in natural hazards. It provides a unified workflow to estimate and compare
 spatial dependence models and to generate spatially dependent pseudoscenarios.
@@ -15,5 +17,7 @@ The package is under active development. The data preparation module
 - Pseudoscenario generation
 
 ## Installation
+
 ```r
 remotes::install_github("Valentina9619/HazardMaps")
+```
