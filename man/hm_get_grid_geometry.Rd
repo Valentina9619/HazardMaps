@@ -2,7 +2,7 @@
 % Please edit documentation in R/prepare_data.R
 \name{hm_get_grid_geometry}
 \alias{hm_get_grid_geometry}
-\title{Extract grid geometry from hazard object}
+\title{Extract grid geometry}
 \usage{
 hm_get_grid_geometry(x)
 }
@@ -10,16 +10,19 @@ hm_get_grid_geometry(x)
 \item{x}{An `hm_hazard` object after [hm_standardize_coords()].}
 }
 \value{
-The input object with an additional `grid` element
-containing:
-  - `nx`, `ny` grid dimensions
-  - `dx`, `dy` approximate grid spacing (NA for rotated grids)
-  - `bbox` bounding box of the spatial domain
-  - `n_cells` total number of grid cells
-  - `grid_type` grid classification ("regular" or "rotated")
+The same `hm_hazard` object with a new `$grid` element containing:
+  \describe{
+    \item{`nx`, `ny`}{Number of grid cells along longitude and latitude.}
+    \item{`dx`, `dy`}{Approximate grid spacing in degrees (`NA` for rotated).}
+    \item{`bbox`}{Named vector: `lon_min`, `lon_max`, `lat_min`, `lat_max`.}
+    \item{`n_cells`}{Total number of grid cells.}
+    \item{`grid_type`}{`"regular"` or `"rotated"`.}
+  }
 }
 \description{
-Computes spatial grid information required for visualization.
-This function derives the grid shape, spacing and bounding box
-from the coordinate information contained in the hazard object.
+Computes the grid shape, spacing, and bounding box from the coordinate
+table stored in an `hm_hazard` object, and adds them as `x$grid`.
+}
+\seealso{
+[hm_standardize_coords()]
 }
