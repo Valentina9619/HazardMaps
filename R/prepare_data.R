@@ -1,406 +1,353 @@
 #' Read a hazard NetCDF dataset
 #'
-#' Reads a NetCDF file containing a hazard variable on a spatial grid
-#' (regular or rotated) and returns a basic `hm_hazard` object.
-#' CRS is NOT required.
+#' Reads a NetCDF file containing a hazard variable on a spatial grid (regular or rotated)
+#' and returns a basic `hm_hazard` object. CRS is NOT required.
 #'
 #' @details
-#' The function supports NetCDF files following common CF conventions for
-#' spatial coordinates. Latitude and longitude may be provided either as
-#' coordinate variables or as dimension coordinates, and may be encoded as:
+#' The function supports NetCDF files following common CF conventions for spatial
+#' coordinates. Latitude and longitude may be provided either as coordinate variables
+#' or as dimension coordinates, and may be encoded as:
 #' \itemize{
 #'   \item one-dimensional regular grids (e.g., Copernicus / ERA5 products),
-#'   \item two-dimensional curvilinear or rotated grids (e.g., EURO-CORDEX).
+#'   \item two-dimensional curvilinear or rotated grids (e.g., EURO-CORDEX products).
 #' }
 #' Coordinate names \code{lat}/\code{lon} and \code{latitude}/\code{longitude}
 #' are automatically detected.
 #'
 #' @param file Path to a NetCDF file.
-#' @param var Optional. Name of the hazard variable. If `NULL` and the file
-#'   contains exactly one variable, it is selected automatically. If multiple
-#'   variables exist and `var` is `NULL`, an error is raised.
+#' @param var Optional. Name of the hazard variable. If `NULL` and multiple variables exist,
+#'   an error is raised (safe default).
 #'
-#' @return An object of class `hm_hazard`, a named list with elements:
-#'   \describe{
-#'     \item{`data`}{Raw array read from the NetCDF file.}
-#'     \item{`coords`}{Named list with `lat`, `lon`, `rlat`, `rlon` (raw).}
-#'     \item{`time`}{Named list with `values` and `units` (raw CF encoding).}
-#'     \item{`meta`}{Named list with `variable`, `grid_type`, `reader`, `file`.}
-#'   }
-#'
-#' @seealso [hm_standardize_coords()], [hm_decode_time()]
+#' @return An object of class `hm_hazard`.
 #' @export
-hm_read_netcdf <- function(file, var = NULL) {
+hm_read_netcdf <- function(file, var = NULL) {if (!is.character(file) || length(file) != 1L) stop("`file` must be a single path string.")
+                                              if (!file.exists(file)) stop("File not found: ", file)
 
-  if (!is.character(file) || length(file) != 1L)
-    stop("`file` must be a single path string.")
-  if (!file.exists(file))
-    stop("File not found: ", file)
+                                              nc <- ncdf4::nc_open(file); on.exit(ncdf4::nc_close(nc), add = TRUE)
 
-  nc <- ncdf4::nc_open(file)
-  on.exit(ncdf4::nc_close(nc), add = TRUE)
+                                              vnames <- names(nc$var)
+                                              if (is.null(var)) {if (length(vnames) != 1L) stop("Multiple variables found. Specify `var`. Candidates: ", paste(vnames, collapse = ", "))
+                                                                 var <- vnames[[1L]]
+                                                                  } else {if (!var %in% vnames) stop("Variable `", var, "` not found. Candidates: ", paste(vnames, collapse = ", "))}
 
-  # --- variable selection -----------------------------------------------------
-  vnames <- names(nc$var)
+                                              dnames <- names(nc$dim)
+                                              if (!("time" %in% dnames)) stop("No `time` dimension found in NetCDF.")
+                                              grid_type <- if (all(c("rlat","rlon") %in% dnames)) "rotated" else "regular"
 
-  if (is.null(var)) {
-    if (length(vnames) != 1L)
-      stop(
-        "Multiple variables found. Please specify `var`. ",
-        "Candidates: ", paste(vnames, collapse = ", ")
-      )
-    var <- vnames[[1L]]
-  } else {
-    if (!var %in% vnames)
-      stop(
-        "Variable `", var, "` not found. ",
-        "Candidates: ", paste(vnames, collapse = ", ")
-      )
-  }
+                                              time_vals <- ncdf4::ncvar_get(nc, "time")
+                                              time_units <- ncdf4::ncatt_get(nc, "time", "units")$value
 
-  # --- grid type detection ----------------------------------------------------
-  dnames <- names(nc$dim)
 
-  if (!"time" %in% dnames)
-    stop("No `time` dimension found in the NetCDF file.")
+                                              lon <- if ("lon" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "lon")} else if ("longitude" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "longitude")}
+                                                else if ("lon" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "lon")} else if ("longitude" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "longitude")}
+                                                else {NULL}
 
-  grid_type <- if (all(c("rlat", "rlon") %in% dnames)) "rotated" else "regular"
+                                              lat <- if ("lat" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "lat")} else if ("latitude" %in% names(nc$var)) {ncdf4::ncvar_get(nc, "latitude")}
+                                                else if ("lat" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "lat")} else if ("latitude" %in% names(nc$dim)) {ncdf4::ncvar_get(nc, "latitude")}
+                                                else {NULL}
 
-  # --- read time axis ---------------------------------------------------------
-  time_vals  <- ncdf4::ncvar_get(nc, "time")
-  time_units <- ncdf4::ncatt_get(nc, "time", "units")$value
+                                              rlon <- if ("rlon" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlon") else NULL
+                                              rlat <- if ("rlat" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlat") else NULL
 
-  # --- read coordinates -------------------------------------------------------
-  # Helper: look for a name in variables first, then in dimensions
-  .read_coord <- function(nc, names) {
-    for (nm in names) {
-      if (nm %in% names(nc$var)) return(ncdf4::ncvar_get(nc, nm))
-      if (nm %in% names(nc$dim)) return(ncdf4::ncvar_get(nc, nm))
-    }
-    NULL
-  }
+                                              dat <- ncdf4::ncvar_get(nc, var)
 
-  lon  <- .read_coord(nc, c("lon", "longitude"))
-  lat  <- .read_coord(nc, c("lat", "latitude"))
-  rlon <- if ("rlon" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlon") else NULL
-  rlat <- if ("rlat" %in% names(nc$dim)) ncdf4::ncvar_get(nc, "rlat") else NULL
-
-  # --- read data array --------------------------------------------------------
-  dat <- ncdf4::ncvar_get(nc, var)
-
-  # --- assemble output --------------------------------------------------------
-  out <- list(
-    data   = dat,
-    coords = list(lat = lat, lon = lon, rlat = rlat, rlon = rlon),
-    time   = list(values = time_vals, units = time_units),
-    meta   = list(
-      variable  = var,
-      grid_type = grid_type,
-      reader    = "ncdf4",
-      file      = normalizePath(file, winslash = "/", mustWork = FALSE)
-    )
-  )
-
-  class(out) <- c("hm_hazard", "list")
-  out
-}
+                                              out <- list(data = dat,
+                                                          coords = list(lat = lat, lon = lon, rlat = rlat, rlon = rlon),
+                                                          time = list(values = time_vals, units = time_units),
+                                                          meta = list(variable = var,
+                                                                      grid_type = grid_type,
+                                                                      reader = "ncdf4",
+                                                                      file = normalizePath(file, winslash = "/", mustWork = FALSE))
+                                                          )
+                                              class(out) <- c("hm_hazard", "list")
+                                              out}
 
 
 
 #' Standardize spatial coordinates
 #'
-#' Converts the raw NetCDF coordinate vectors or matrices stored in an
-#' `hm_hazard` object into a canonical data.frame with one row per grid cell.
+#' Converts raw NetCDF coordinates into a canonical coordinate table with one row
+#' per grid cell.
 #'
 #' @details
 #' Two coordinate encodings are supported:
 #' \itemize{
-#'   \item \strong{Regular grids:} `lat` and `lon` are 1D vectors.
-#'     All combinations are expanded with [expand.grid()].
-#'   \item \strong{Rotated/curvilinear grids:} `lat` and `lon` are 2D matrices
-#'     (e.g., \code{lat(rlat, rlon)} as in EURO-CORDEX products).
-#'     Rotated indices `rlat` and `rlon` are appended when available.
+#'   \item \strong{Regular grids:} latitude and longitude provided as 1D coordinates
+#'   (either pure vectors or 1D arrays with dimension attributes).
+#'   \item \strong{Curvilinear/rotated grids:} latitude and longitude provided as 2D arrays
+#'   (e.g., \code{lat(rlat, rlon)} and \code{lon(rlat, rlon)}).
 #' }
 #'
 #' @param x An `hm_hazard` object returned by [hm_read_netcdf()].
 #'
-#' @return The same `hm_hazard` object with `x$coords` replaced by a
-#'   data.frame containing at least `cell_id`, `lat`, and `lon`. For rotated
-#'   grids, `rlon` and `rlat` columns are also included.
-#'
-#' @seealso [hm_read_netcdf()], [hm_get_grid_geometry()]
+#' @return The same `hm_hazard` object, but with `x$coords` replaced by a data.frame
+#'   containing at least `cell_id`, `lat`, and `lon`. Additional columns may be included
+#'   when available (e.g., rotated-grid indices).
 #' @export
-hm_standardize_coords <- function(x) {
+hm_standardize_coords <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                                      if (is.null(x$coords) || !is.list(x$coords)) stop("`x$coords` must be a list with lat/lon.")
 
-  if (is.null(x) || !"hm_hazard" %in% class(x))
-    stop("`x` must be an object of class `hm_hazard`.")
-  if (is.null(x$coords) || !is.list(x$coords))
-    stop("`x$coords` must be a list. Run `hm_read_netcdf()` first.")
+                                      lat <- x$coords$lat; lon <- x$coords$lon
+                                      rlat <- x$coords$rlat; rlon <- x$coords$rlon
 
-  lat  <- x$coords$lat
-  lon  <- x$coords$lon
-  rlat <- x$coords$rlat
-  rlon <- x$coords$rlon
+                                      if ((is.null(dim(lat)) || length(dim(lat)) == 1) && (is.null(dim(lon)) || length(dim(lon)) == 1)) {latv <- as.vector(lat)
+                                                                                                                                         lonv <- as.vector(lon)
 
-  # --- regular grid: lat and lon are 1D ---------------------------------------
-  is_1d <- function(z) is.null(dim(z)) || length(dim(z)) == 1L
+                                                                                                                                         g <- expand.grid(lat = latv, lon = lonv)
+                                                                                                                                         g$cell_id <- seq_len(nrow(g))
+                                                                                                                                         g <- g[, c("cell_id","lat","lon")]
 
-  if (is_1d(lat) && is_1d(lon)) {
-    g <- expand.grid(lat = as.vector(lat), lon = as.vector(lon))
-    g$cell_id <- seq_len(nrow(g))
-    x$coords  <- g[, c("cell_id", "lat", "lon")]
-    return(x)
-  }
+                                                                                                                                         x$coords <- g
+                                                                                                                                         return(x)}
 
-  # --- rotated/curvilinear grid: lat and lon are 2D matrices -----------------
-  if (is.matrix(lat) && is.matrix(lon)) {
-    n <- prod(dim(lat))
+                                       if (is.matrix(lat) && is.matrix(lon)) {d <- dim(lat)
+                                                                              n <- d[1] * d[2]
 
-    g <- data.frame(
-      cell_id = seq_len(n),
-      lat     = as.vector(lat),
-      lon     = as.vector(lon)
-    )
+                                                                              g <- data.frame(cell_id = seq_len(n),
+                                                                                              lat = as.vector(lat),
+                                                                                              lon = as.vector(lon))
 
-    if (!is.null(rlat) && !is.null(rlon)) {
-      idx <- expand.grid(rlon = rlon, rlat = rlat)
-      if (nrow(idx) == n) {
-        g$rlon <- idx$rlon
-        g$rlat <- idx$rlat
-      }
-    }
+                                                                              if (!is.null(rlat) && !is.null(rlon)) {idx <- expand.grid(rlon = rlon, rlat = rlat)
+                                                                                                                     if (nrow(idx) == n) {g$rlon <- idx$rlon
+                                                                                                                                          g$rlat <- idx$rlat}
+                                                                                                                    }
 
-    x$coords <- g
-    return(x)
-  }
+                                                                               x$coords <- g
+                                                                               return(x)}
 
-  stop("Unsupported coordinate structure in `x$coords`.")
-}
+                                       stop("Unsupported coordinate structure.")}
 
 
 
-#' Extract grid geometry
+#' Extract grid geometry from hazard object
 #'
-#' Computes the grid shape, spacing, and bounding box from the coordinate
-#' table stored in an `hm_hazard` object, and adds them as `x$grid`.
+#' Computes spatial grid information required for visualization.
+#' This function derives the grid shape, spacing and bounding box
+#' from the coordinate information contained in the hazard object.
 #'
 #' @param x An `hm_hazard` object after [hm_standardize_coords()].
 #'
-#' @return The same `hm_hazard` object with a new `$grid` element containing:
-#'   \describe{
-#'     \item{`nx`, `ny`}{Number of grid cells along longitude and latitude.}
-#'     \item{`dx`, `dy`}{Approximate grid spacing in degrees (`NA` for rotated).}
-#'     \item{`bbox`}{Named vector: `lon_min`, `lon_max`, `lat_min`, `lat_max`.}
-#'     \item{`n_cells`}{Total number of grid cells.}
-#'     \item{`grid_type`}{`"regular"` or `"rotated"`.}
-#'   }
+#' @return The input object with an additional `grid` element
+#' containing:
+#'   - `nx`, `ny` grid dimensions
+#'   - `dx`, `dy` approximate grid spacing (NA for rotated grids)
+#'   - `bbox` bounding box of the spatial domain
+#'   - `n_cells` total number of grid cells
+#'   - `grid_type` grid classification ("regular" or "rotated")
 #'
-#' @seealso [hm_standardize_coords()]
 #' @export
-hm_get_grid_geometry <- function(x) {
+hm_get_grid_geometry <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x))
+                                      stop("`x` must be an object of class `hm_hazard`.")
 
-  if (is.null(x) || !"hm_hazard" %in% class(x))
-    stop("`x` must be an object of class `hm_hazard`.")
-  if (is.null(x$coords) || !is.data.frame(x$coords))
-    stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+                                     if (is.null(x$coords) || !is.data.frame(x$coords))
+                                      stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
 
-  lon <- x$coords$lon
-  lat <- x$coords$lat
+                                     lon <- x$coords$lon
+                                     lat <- x$coords$lat
 
-  if (is.null(lon) || is.null(lat))
-    stop("`x$coords` must contain `lon` and `lat` columns.")
+                                     if (is.null(lon) || is.null(lat))
+                                      stop("Coordinates must contain `lon` and `lat`.")
 
-  bbox <- c(
-    lon_min = min(lon, na.rm = TRUE),
-    lon_max = max(lon, na.rm = TRUE),
-    lat_min = min(lat, na.rm = TRUE),
-    lat_max = max(lat, na.rm = TRUE)
-  )
+                                     bbox <- c(lon_min = min(lon, na.rm = TRUE),
+                                               lon_max = max(lon, na.rm = TRUE),
+                                               lat_min = min(lat, na.rm = TRUE),
+                                               lat_max = max(lat, na.rm = TRUE))
 
-  n_cells   <- nrow(x$coords)
-  grid_type <- if (!is.null(x$meta$grid_type)) x$meta$grid_type else NA_character_
+                                     n_cells <- nrow(x$coords)
 
-  # --- rotated grid: use rlat/rlon index counts, spacing is not meaningful ----
-  if (!is.na(grid_type) && grid_type == "rotated") {
-    if (all(c("rlon", "rlat") %in% names(x$coords))) {
-      nx <- length(unique(x$coords$rlon))
-      ny <- length(unique(x$coords$rlat))
-    } else {
-      nx <- NA_integer_
-      ny <- NA_integer_
-    }
-    dx <- NA_real_
-    dy <- NA_real_
+                                     grid_type <- if (!is.null(x$meta$grid_type)) x$meta$grid_type else NA_character_
 
-    # --- regular grid: derive spacing from sorted unique coordinates ------------
-  } else {
-    lon_u <- sort(unique(lon))
-    lat_u <- sort(unique(lat))
+                                     if (!is.na(grid_type) && grid_type == "rotated")
+                                       {if (all(c("rlon","rlat") %in% names(x$coords))) {nx <- length(unique(x$coords$rlon))
+                                                                                        ny <- length(unique(x$coords$rlat))
+                                                                                        } else {nx <- NA_integer_
+                                                                                                ny <- NA_integer_}
 
-    nx <- length(lon_u)
-    ny <- length(lat_u)
+                                        dlon <- NA_real_
+                                        dlat <- NA_real_
+                                     }
+                                     else {lon_u <- sort(unique(lon))
+                                           lat_u <- sort(unique(lat))
 
-    dx <- if (length(lon_u) > 1) stats::median(diff(lon_u), na.rm = TRUE) else NA_real_
-    dy <- if (length(lat_u) > 1) stats::median(diff(lat_u), na.rm = TRUE) else NA_real_
+                                           nx <- length(lon_u)
+                                           ny <- length(lat_u)
 
-    # If the grid is not perfectly rectangular, dimensions are ambiguous
-    if (nx * ny != n_cells) {
-      nx <- NA_integer_
-      ny <- NA_integer_
-    }
-  }
+                                           dlon <- if (length(lon_u) > 1) stats::median(diff(lon_u), na.rm = TRUE) else NA_real_
+                                           dlat <- if (length(lat_u) > 1) stats::median(diff(lat_u), na.rm = TRUE) else NA_real_
 
-  x$grid <- list(
-    nx        = nx,
-    ny        = ny,
-    dx        = dx,
-    dy        = dy,
-    bbox      = bbox,
-    n_cells   = n_cells,
-    grid_type = grid_type
-  )
+                                            if (nx * ny != n_cells) {nx <- NA_integer_
+                                                                     ny <- NA_integer_}
+                                          }
 
-  x
-}
+                                     x$grid <- list(nx = nx, ny = ny,
+                                                    dx = dlon, dy = dlat,
+                                                    bbox = bbox,
+                                                    n_cells = n_cells,
+                                                    grid_type = grid_type)
+
+                                     x}
 
 
 
-#' Decode the NetCDF time axis
+#' Decode NetCDF time axis
 #'
-#' Converts CF-style time units (e.g., `"days since 1970-01-01"`) into an R
-#' `Date` or `POSIXct` vector and replaces the raw `x$time` list.
+#' Converts CF-style NetCDF time units (e.g., "days since 1970-01-01") into
+#' an R Date (or POSIXct) vector and stores it in `x$time`.
 #'
 #' @param x An `hm_hazard` object returned by [hm_read_netcdf()].
-#' @param tz Time zone string used when units are sub-daily (default `"UTC"`).
+#' @param tz Timezone used if units are in hours/minutes/seconds (default "UTC").
 #'
-#' @return The same `hm_hazard` object with `x$time` replaced by a `Date`
-#'   vector (for daily data) or a `POSIXct` vector (for sub-daily data).
-#'
-#' @seealso [hm_read_netcdf()], [hm_to_matrix()]
+#' @return The same `hm_hazard` object with `x$time` replaced by a Date or POSIXct vector.
 #' @export
-hm_decode_time <- function(x, tz = "UTC") {
+hm_decode_time <- function(x, tz = "UTC") {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                                           if (is.null(x$time) || !is.list(x$time) || is.null(x$time$values) || is.null(x$time$units)) stop("`x$time` must be a list with `values` and `units`.")
+                                           vals <- x$time$values; units <- x$time$units
+                                           if (!is.numeric(vals)) stop("`x$time$values` must be numeric.")
+                                           if (!is.character(units) || length(units) != 1L) stop("`x$time$units` must be a single string.")
+                                           u <- trimws(units)
+                                           if (!grepl(" since ", u, fixed = TRUE)) stop("Unsupported time units format (missing ' since '): ", units)
 
-  if (is.null(x) || !"hm_hazard" %in% class(x))
-    stop("`x` must be an object of class `hm_hazard`.")
-  if (is.null(x$time) || !is.list(x$time) ||
-      is.null(x$time$values) || is.null(x$time$units))
-    stop("`x$time` must be a list with `values` and `units`. Run `hm_read_netcdf()` first.")
+                                           parts <- strsplit(u, " since ", fixed = TRUE)[[1L]]
+                                           base_unit <- tolower(trimws(parts[[1L]]))
+                                           origin_str <- trimws(parts[[2L]])
 
-  vals  <- x$time$values
-  units <- x$time$units
+                                           origin_str <- sub("Z$", "", origin_str)
+                                           origin <- suppressWarnings(as.POSIXct(origin_str, tz = tz))
+                                           if (is.na(origin)) origin <- suppressWarnings(as.POSIXct(paste0(origin_str, " 00:00:00"), tz = tz))
+                                           if (is.na(origin)) stop("Could not parse time origin from units: ", units)
 
-  if (!is.numeric(vals))
-    stop("`x$time$values` must be numeric.")
-  if (!is.character(units) || length(units) != 1L)
-    stop("`x$time$units` must be a single character string.")
+                                           mult <- if (base_unit %in% c("days", "day")) 86400 else if (base_unit %in% c("hours", "hour")) 3600 else if (base_unit %in% c("minutes", "minute", "mins", "min")) 60 else if (base_unit %in% c("seconds", "second", "secs", "sec")) 1 else NA_real_
+                                           if (!is.finite(mult)) stop("Unsupported base time unit: ", base_unit)
 
-  u <- trimws(units)
-  if (!grepl(" since ", u, fixed = TRUE))
-    stop("Unsupported time units (missing ' since '): ", units)
-
-  # --- parse "unit since origin" ----------------------------------------------
-  parts     <- strsplit(u, " since ", fixed = TRUE)[[1L]]
-  base_unit <- tolower(trimws(parts[[1L]]))
-  origin_str <- trimws(parts[[2L]])
-
-  # Remove trailing Z before parsing (some files use ISO 8601 format)
-  origin_str <- sub("Z$", "", origin_str)
-  origin     <- suppressWarnings(as.POSIXct(origin_str, tz = tz))
-
-  if (is.na(origin))
-    origin <- suppressWarnings(as.POSIXct(paste0(origin_str, " 00:00:00"), tz = tz))
-  if (is.na(origin))
-    stop("Could not parse time origin from units string: ", units)
-
-  # --- convert to seconds -----------------------------------------------------
-  mult <- switch(
-    base_unit,
-    "day"    = , "days"    = 86400,
-    "hour"   = , "hours"   = 3600,
-    "minute" = , "minutes" = ,
-    "min"    = , "mins"    = 60,
-    "second" = , "seconds" = ,
-    "sec"    = , "secs"    = 1,
-    NA_real_
-  )
-
-  if (!is.finite(mult))
-    stop("Unsupported base time unit: `", base_unit, "`.")
-
-  tposix <- origin + vals * mult
-
-  # Return Date for daily data, POSIXct for sub-daily
-  x$time <- if (mult == 86400) as.Date(tposix, tz = tz) else tposix
-  x
-}
+                                           tposix <- origin + vals * mult
+                                           if (mult == 86400) x$time <- as.Date(tposix, tz = tz) else x$time <- tposix
+                                           x}
 
 
 
-#' Convert hazard data to a time-by-cell matrix
+#' Convert hazard array to a time x cell matrix
 #'
-#' Reshapes `x$data` (a multi-dimensional array) into a plain numeric matrix
-#' where rows are time steps and columns are grid cells. The time vector and
-#' coordinate table are attached as attributes so downstream functions do not
-#' need to carry the full `hm_hazard` object.
+#' Converts `x$data` (an array with one time dimension) into a numeric matrix with:
+#' rows = time steps, columns = grid cells (cell_id). Time and coordinates are stored as attributes.
 #'
-#' @param x An `hm_hazard` object after [hm_standardize_coords()] and
-#'   [hm_decode_time()].
+#' @param x An `hm_hazard` object after [hm_standardize_coords()] and [hm_decode_time()].
 #'
-#' @return A numeric matrix of dimension `T x N` (time steps by grid cells)
-#'   with two attributes:
+#' @return A numeric matrix of dimension (T x N) with attributes:
+#'   - `time`: the decoded time vector
+#'   - `coords`: the coordinate table (must include `cell_id`, `lat`, `lon`)
+#' @export
+hm_to_matrix <- function(x) {if (is.null(x) || !"hm_hazard" %in% class(x)) stop("`x` must be an object of class `hm_hazard`.")
+                             if (is.null(x$data)) stop("`x$data` is missing.")
+                             if (is.null(x$coords) || !is.data.frame(x$coords)) stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
+                             if (is.null(x$time) || !(inherits(x$time, "Date") || inherits(x$time, "POSIXct") || inherits(x$time, "POSIXt"))) stop("`x$time` must be decoded (Date/POSIXct). Run `hm_decode_time()` first.")
+
+                             dat <- x$data
+                             if (!is.array(dat)) stop("`x$data` must be an array.")
+                             d <- dim(dat); if (is.null(d) || length(d) < 2L) stop("`x$data` must have at least 2 dimensions (time + space).")
+
+                             T <- length(x$time); N <- nrow(x$coords)
+                             tidx <- which(d == T)
+                             if (length(tidx) != 1L) stop("Could not uniquely identify the time dimension in `x$data`. Expected exactly one dimension of length ", T, ". Found: ", paste(d, collapse = " x "))
+
+                             sidx <- setdiff(seq_along(d), tidx)
+                             if (prod(d[sidx]) != N) stop("Spatial size mismatch: prod(spatial dims) = ", prod(d[sidx]), " but nrow(coords) = ", N, ". dims(data) = ", paste(d, collapse = " x "))
+
+                             dat2 <- aperm(dat, c(tidx, sidx))
+                             X <- matrix(as.vector(dat2), nrow = T, ncol = N, byrow = FALSE)
+
+                             attr(X, "time") <- x$time
+                             attr(X, "coords") <- x$coords
+                             X}
+
+
+
+#' Remove sea and no-data cells from a hazard matrix
+#'
+#' Drops columns from the hazard matrix that contain too few valid
+#' (finite, positive) observations to support marginal fitting or spatial
+#' dependence estimation. This is the standard pre-processing step before
+#' [hm_fit_marginals()] or [hm_empirical_kendall()] on rotated-grid datasets
+#' such as EURO-CORDEX, where sea cells produce all-NA or all-zero columns.
+#'
+#' @details
+#' A column is retained when the fraction of finite, strictly positive
+#' values is at least `min_valid`. The default of `0.8` means a cell must
+#' have valid data on at least 80 percent of the extreme-event days to be
+#' kept. The indices of retained columns are stored as attribute
+#' `"land_idx"` on the output matrix, so results can be mapped back to the
+#' full coordinate table for plotting.
+#'
+#' @param X A numeric matrix of dimension \eqn{T \times N} as returned by
+#'   [hm_to_matrix()].
+#' @param min_valid A single numeric value in \eqn{(0, 1]}. Columns where
+#'   the fraction of finite positive values is below this threshold are
+#'   dropped. Defaults to `0.8`.
+#'
+#' @return A numeric matrix with only land columns retained. Two attributes
+#'   are attached:
 #'   \describe{
-#'     \item{`time`}{The decoded time vector from `x$time`.}
-#'     \item{`coords`}{The coordinate data.frame from `x$coords`.}
+#'     \item{`land_idx`}{Integer vector of the retained column indices in
+#'       the original matrix.}
+#'     \item{`coords`}{Coordinate data.frame restricted to the retained
+#'       columns, when the original matrix carries a `coords` attribute.}
 #'   }
 #'
-#' @seealso [hm_decode_time()], [hm_standardize_coords()]
+#' @seealso [hm_to_matrix()], [hm_fit_marginals()],
+#'   [hm_empirical_kendall()]
+#'
+#' @examples
+#' \dontrun{
+#' f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "wsgsmax")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x <- hm_select_extreme_events(x, threshold = 25)
+#' X <- hm_to_matrix(x)
+#'
+#' X_land <- hm_filter_land_cells(X)
+#' cat("Cells before:", ncol(X), " — after:", ncol(X_land), "\n")
+#' attr(X_land, "land_idx")
+#' }
+#'
 #' @export
-hm_to_matrix <- function(x) {
+hm_filter_land_cells <- function(X, min_valid = 0.8) {
 
-  if (is.null(x) || !"hm_hazard" %in% class(x))
-    stop("`x` must be an object of class `hm_hazard`.")
-  if (is.null(x$data) || !is.array(x$data))
-    stop("`x$data` must be an array.")
-  if (is.null(x$coords) || !is.data.frame(x$coords))
-    stop("`x$coords` must be a data.frame. Run `hm_standardize_coords()` first.")
-  if (is.null(x$time) ||
-      !(inherits(x$time, "Date") ||
-        inherits(x$time, "POSIXct") ||
-        inherits(x$time, "POSIXt")))
-    stop("`x$time` must be a decoded Date/POSIXct. Run `hm_decode_time()` first.")
+  if (!is.matrix(X) || !is.numeric(X))
+    stop("`X` must be a numeric matrix.")
+  if (!is.numeric(min_valid) || length(min_valid) != 1L ||
+      min_valid <= 0 || min_valid > 1)
+    stop("`min_valid` must be a single numeric value in (0, 1].")
 
-  dat <- x$data
-  d   <- dim(dat)
+  T_steps <- nrow(X)
 
-  if (length(d) < 2L)
-    stop("`x$data` must have at least 2 dimensions (space + time).")
+  # Fraction of finite positive values per column
+  valid_frac <- colSums(is.finite(X) & X > 0) / T_steps
 
-  T_steps <- length(x$time)
-  N_cells <- nrow(x$coords)
+  land_idx <- which(valid_frac >= min_valid)
 
-  # Identify which dimension corresponds to time
-  tidx <- which(d == T_steps)
-  if (length(tidx) != 1L)
+  if (length(land_idx) == 0L)
     stop(
-      "Cannot uniquely identify the time dimension. ",
-      "Expected one dimension of length ", T_steps,
-      ", found: ", paste(d, collapse = " x ")
+      "No columns meet the `min_valid` threshold of ", min_valid, ". ",
+      "Consider lowering the threshold."
     )
 
-  # All other dimensions are spatial
-  sidx <- setdiff(seq_along(d), tidx)
-  if (prod(d[sidx]) != N_cells)
-    stop(
-      "Spatial size mismatch: product of spatial dimensions = ", prod(d[sidx]),
-      " but number of coordinate rows = ", N_cells,
-      ". Array dimensions: ", paste(d, collapse = " x ")
-    )
+  n_dropped <- ncol(X) - length(land_idx)
+  if (n_dropped > 0L)
+    message(n_dropped, " sea/no-data column(s) removed. ",
+            length(land_idx), " land cells retained.")
 
-  # Move time to the first dimension, then flatten to a matrix
-  dat_reordered <- aperm(dat, c(tidx, sidx))
-  X <- matrix(as.vector(dat_reordered), nrow = T_steps, ncol = N_cells)
+  X_land <- X[, land_idx, drop = FALSE]
 
-  attr(X, "time")   <- x$time
-  attr(X, "coords") <- x$coords
-  X
+  attr(X_land, "land_idx") <- land_idx
+
+  # Carry forward the coords attribute restricted to land cells
+  coords <- attr(X, "coords")
+  if (!is.null(coords) && is.data.frame(coords))
+    attr(X_land, "coords") <- coords[land_idx, , drop = FALSE]
+
+  # Carry forward the time attribute unchanged
+  attr(X_land, "time") <- attr(X, "time")
+
+  X_land
 }
