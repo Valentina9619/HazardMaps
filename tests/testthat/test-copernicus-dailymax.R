@@ -307,3 +307,140 @@ test_that("Copernicus distribution frequency chart can be plotted", {
 
   expect_true(inherits(p, "ggplot"))
 })
+
+
+test_that("Copernicus land cell filter retains all cells (regular grid)", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+
+  # Copernicus is a land-only regular grid — all cells must be retained
+  expect_equal(ncol(X_land), ncol(X))
+  expect_true(!is.null(attr(X_land, "land_idx")))
+  expect_equal(length(attr(X_land, "land_idx")), ncol(X))
+  expect_equal(nrow(X_land), nrow(X))
+})
+
+
+test_that("Copernicus distance matrix has correct structure", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  coords <- attr(X_land, "coords")
+
+  # Use a small subset for speed
+  D <- hm_distance_matrix(coords[1:20, ])
+
+  expect_true(is.matrix(D))
+  expect_equal(dim(D), c(20L, 20L))
+  expect_true(all(diag(D) == 0))
+  expect_true(all(D >= 0))
+  expect_true(isSymmetric(D))
+  expect_gt(max(D), 0)
+})
+
+
+test_that("Copernicus empirical Kendall matrix has correct structure", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+  tau    <- hm_empirical_kendall(pit$Z, cell_idx = 1:20)
+
+  expect_true(is.matrix(tau))
+  expect_equal(dim(tau), c(20L, 20L))
+  expect_true(all(diag(tau) == 1))
+  expect_true(isSymmetric(tau))
+  expect_true(all(tau >= -1 & tau <= 1, na.rm = TRUE))
+})
+
+
+test_that("Copernicus empirical correlogram decreases with distance", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+  tau    <- hm_empirical_kendall(pit$Z, cell_idx = 1:20)
+  D      <- hm_distance_matrix(attr(X_land, "coords")[1:20, ])
+  corg   <- hm_empirical_correlogram(tau, D, n_bins = 10)
+
+  expect_s3_class(corg, "data.frame")
+  expect_true(all(c("bin_center", "mean_tau", "n_pairs",
+                    "bin_lo", "bin_hi") %in% names(corg)))
+  expect_true(all(corg$n_pairs > 0L))
+  expect_true(all(corg$bin_center > 0))
+
+  # Correlation at the shortest distances must be higher than at long range
+  expect_gt(corg$mean_tau[1], corg$mean_tau[nrow(corg)])
+})
+
+
+test_that("Copernicus cluster size output is consistent", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  cs     <- hm_cluster_size(X_land, threshold = 25,
+                             time = attr(X_land, "time"))
+
+  expect_s3_class(cs, "data.frame")
+  expect_true(all(c("date", "cluster_size",
+                    "cluster_fraction") %in% names(cs)))
+  expect_equal(nrow(cs), nrow(X_land))
+
+  # Every retained day must have at least one cell >= threshold
+  # (because X_land comes from hm_select_extreme_events)
+  expect_true(all(cs$cluster_size >= 1L))
+  expect_true(all(cs$cluster_fraction > 0 & cs$cluster_fraction <= 1))
+})
