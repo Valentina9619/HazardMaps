@@ -1,4 +1,4 @@
-if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id", "poly_id", "exceedance_value", "period_label", "best_dist_label", "count", "dist_label"))}
+if (getRversion() >= "2.15.1") {utils::globalVariables(c("lon", "lat", "group_id", "poly_id", "exceedance_value", "period_label", "best_dist_label", "count", "dist_label", "bin_center", "mean_tau", "n_pairs", "pct", "density", "pdf", "y", "cdf", "theoretical", "empirical"))}
 
 #' Validate spatial bounding box
 #'
@@ -1338,4 +1338,112 @@ hm_plot_dist_frequency <- function(fits, title = NULL, bar_fill = NULL,
       plot.title  = ggplot2::element_text(hjust = 0.5),
       axis.text.x = ggplot2::element_text(angle = 20, hjust = 1)
     )
+}
+
+
+
+#' Plot the empirical spatial correlogram
+#'
+#' Draws the empirical correlogram produced by [hm_empirical_correlogram()]:
+#' average Kendall \eqn{\hat{\tau}} as a function of inter-site distance,
+#' with point size proportional to the number of cell pairs in each bin.
+#' Reproduces the style of Fig. 8 in Clavijo Mesa et al. (2026, SF paper).
+#'
+#' @details
+#' A horizontal dashed reference line is drawn at \eqn{\tau = 0} to help
+#' identify the distance at which spatial dependence becomes negligible.
+#' Point size is scaled by `sqrt(n_pairs)` so bins with more pairs are
+#' visually more prominent without dominating the plot.
+#'
+#' @param corg A data.frame returned by [hm_empirical_correlogram()], with
+#'   columns `bin_center`, `mean_tau`, and `n_pairs`.
+#' @param title Optional plot title.
+#' @param colour Line and point colour. Defaults to `"#2166AC"` (steel blue).
+#' @param show_points Logical. If `TRUE` (default), draws points at each
+#'   bin centre sized by the number of pairs.
+#' @param show_zero Logical. If `TRUE` (default), adds a horizontal dashed
+#'   line at \eqn{\tau = 0}.
+#' @param ylim Optional numeric vector of length 2 for the y-axis range.
+#'   If `NULL` (default), the range is set automatically.
+#'
+#' @return A `ggplot` object.
+#'
+#' @seealso [hm_empirical_correlogram()], [hm_empirical_kendall()],
+#'   [hm_distance_matrix()]
+#'
+#' @references
+#' Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
+#' Inoperability assessment of interdependent critical infrastructures
+#' exposed to natural hazards considering climate change.
+#' \emph{International Journal of Disaster Risk Reduction}, 141, 106172.
+#'
+#' @examples
+#' \dontrun{
+#' X_land <- hm_filter_land_cells(X)
+#' fits   <- hm_fit_marginals(X_land)
+#' pit    <- hm_pit_transform(X_land, fits)
+#' tau    <- hm_empirical_kendall(pit$Z)
+#' D      <- hm_distance_matrix(attr(X_land, "coords"))
+#' corg   <- hm_empirical_correlogram(tau, D)
+#'
+#' hm_plot_correlogram(corg,
+#'   title = "Empirical correlogram — Copernicus wind gust")
+#' }
+#'
+#' @export
+hm_plot_correlogram <- function(corg, title = NULL,
+                                 colour = "#2166AC",
+                                 show_points = TRUE,
+                                 show_zero   = TRUE,
+                                 ylim = NULL) {
+
+  if (!requireNamespace("ggplot2", quietly = TRUE))
+    stop("Package `ggplot2` is required.")
+  if (!is.data.frame(corg))
+    stop("`corg` must be a data.frame from `hm_empirical_correlogram()`.")
+  if (!all(c("bin_center", "mean_tau", "n_pairs") %in% names(corg)))
+    stop("`corg` must contain `bin_center`, `mean_tau`, and `n_pairs`.")
+
+  if (is.null(title))
+    title <- "Empirical spatial correlogram"
+
+  p <- ggplot2::ggplot(corg,
+                        ggplot2::aes(x = bin_center, y = mean_tau))
+
+  # Zero reference line drawn first so it sits behind everything else
+  if (isTRUE(show_zero))
+    p <- p + ggplot2::geom_hline(yintercept = 0,
+                                  linetype  = "dashed",
+                                  colour    = "grey60",
+                                  linewidth = 0.5)
+
+  # Connecting line
+  p <- p + ggplot2::geom_line(colour = colour, linewidth = 0.8)
+
+  # Points sized by number of pairs in each bin
+  if (isTRUE(show_points))
+    p <- p + ggplot2::geom_point(
+      ggplot2::aes(size = sqrt(n_pairs)),
+      colour = colour,
+      show.legend = FALSE
+    )
+
+  p <- p +
+    ggplot2::labs(
+      title = title,
+      x     = "Distance (km)",
+      y     = "Kendall \u03C4"
+    ) +
+    ggplot2::theme_minimal(base_size = 12) +
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(hjust = 0.5)
+    )
+
+  if (!is.null(ylim)) {
+    if (!is.numeric(ylim) || length(ylim) != 2L)
+      stop("`ylim` must be a numeric vector of length 2.")
+    p <- p + ggplot2::ylim(ylim[1], ylim[2])
+  }
+
+  p
 }

@@ -2,23 +2,19 @@
 % Please edit documentation in R/prepare_data.R
 \name{hm_decode_time}
 \alias{hm_decode_time}
-\title{Decode the NetCDF time axis}
+\title{Decode NetCDF time axis}
 \usage{
 hm_decode_time(x, tz = "UTC")
 }
 \arguments{
 \item{x}{An `hm_hazard` object returned by [hm_read_netcdf()].}
 
-\item{tz}{Time zone string used when units are sub-daily (default `"UTC"`).}
+\item{tz}{Timezone used if units are in hours/minutes/seconds (default "UTC").}
 }
 \value{
-The same `hm_hazard` object with `x$time` replaced by a `Date`
-  vector (for daily data) or a `POSIXct` vector (for sub-daily data).
+The same `hm_hazard` object with `x$time` replaced by a Date or POSIXct vector.
 }
 \description{
-Converts CF-style time units (e.g., `"days since 1970-01-01"`) into an R
-`Date` or `POSIXct` vector and replaces the raw `x$time` list.
-}
-\seealso{
-[hm_read_netcdf()], [hm_to_matrix()]
+Converts CF-style NetCDF time units (e.g., "days since 1970-01-01") into
+an R Date (or POSIXct) vector and stores it in `x$time`.
 }

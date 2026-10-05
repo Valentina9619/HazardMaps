@@ -2,28 +2,19 @@
 % Please edit documentation in R/prepare_data.R
 \name{hm_to_matrix}
 \alias{hm_to_matrix}
-\title{Convert hazard data to a time-by-cell matrix}
+\title{Convert hazard array to a time x cell matrix}
 \usage{
 hm_to_matrix(x)
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()] and
-[hm_decode_time()].}
+\item{x}{An `hm_hazard` object after [hm_standardize_coords()] and [hm_decode_time()].}
 }
 \value{
-A numeric matrix of dimension `T x N` (time steps by grid cells)
-  with two attributes:
-  \describe{
-    \item{`time`}{The decoded time vector from `x$time`.}
-    \item{`coords`}{The coordinate data.frame from `x$coords`.}
-  }
+A numeric matrix of dimension (T x N) with attributes:
+  - `time`: the decoded time vector
+  - `coords`: the coordinate table (must include `cell_id`, `lat`, `lon`)
 }
 \description{
-Reshapes `x$data` (a multi-dimensional array) into a plain numeric matrix
-where rows are time steps and columns are grid cells. The time vector and
-coordinate table are attached as attributes so downstream functions do not
-need to carry the full `hm_hazard` object.
-}
-\seealso{
-[hm_decode_time()], [hm_standardize_coords()]
+Converts `x$data` (an array with one time dimension) into a numeric matrix with:
+rows = time steps, columns = grid cells (cell_id). Time and coordinates are stored as attributes.
 }

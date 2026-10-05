@@ -382,3 +382,30 @@ test_that("EURO-CORDEX cluster size output is consistent", {
   expect_true(all(cs$cluster_size >= 1L))
   expect_true(all(cs$cluster_fraction > 0 & cs$cluster_fraction <= 1))
 })
+
+
+test_that("EURO-CORDEX correlogram can be plotted", {
+  f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "wsgsmax")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+  tau    <- hm_empirical_kendall(pit$Z, cell_idx = 1:20)
+  D      <- hm_distance_matrix(attr(X_land, "coords")[1:20, ])
+  corg   <- hm_empirical_correlogram(tau, D, n_bins = 10)
+
+  p <- hm_plot_correlogram(corg,
+         title = "Empirical correlogram — EURO-CORDEX wind gust")
+
+  expect_true(inherits(p, "ggplot"))
+})
