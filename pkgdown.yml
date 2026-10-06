@@ -1,0 +1,9 @@
+pandoc: 3.8.3
+pkgdown: 2.2.1
+pkgdown_sha: ~
+articles:
+  tutorial: tutorial.html
+last_built: 2026-10-06T21:28Z
+urls:
+  reference: https://valentina9619.github.io/HazardMaps/reference
+  article: https://valentina9619.github.io/HazardMaps/articles
