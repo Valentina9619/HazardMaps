@@ -7,7 +7,6 @@ if (getRversion() >= "2.15.1") {
   ))
 }
 
-# @noRd
 .hm_validate_bbox <- function(bbox, coords) {
 
   if (is.null(coords) || !is.data.frame(coords))
@@ -43,7 +42,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_regular_spacing <- function(z) {
   z <- sort(unique(as.vector(z)))
   d <- diff(z)
@@ -53,7 +51,6 @@ if (getRversion() >= "2.15.1") {
   stats::median(d, na.rm = TRUE)
 }
 
-# @noRd
 .hm_regular_sequence <- function(zmin, zmax, dz) {
   if (!is.finite(dz) || dz <= 0)
     stop("`dz` must be a positive finite number.")
@@ -61,14 +58,12 @@ if (getRversion() >= "2.15.1") {
   z[z <= zmax + dz / 1000]
 }
 
-# @noRd
 .hm_label_lon <- function(x) {
   out        <- paste0(abs(x), "\u00B0", ifelse(x < 0, "W", "E"))
   out[x == 0] <- "0\u00B0"
   out
 }
 
-# @noRd
 .hm_label_lat <- function(x) {
   out        <- paste0(abs(x), "\u00B0", ifelse(x < 0, "S", "N"))
   out[x == 0] <- "0\u00B0"
@@ -77,7 +72,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_resolve_plot_type <- function(x, dataset = "auto") {
 
   dataset <- match.arg(dataset,
@@ -100,7 +94,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_build_regular_grid_lines <- function(x, bbox = NULL, grid_res = NULL) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -150,7 +143,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_build_rotated_grid_lines <- function(x, bbox = NULL) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -201,7 +193,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_base_domain_plot <- function(bbox, show_map = TRUE) {
 
   if (!requireNamespace("ggplot2", quietly = TRUE))
@@ -223,7 +214,6 @@ if (getRversion() >= "2.15.1") {
   p
 }
 
-# @noRd
 .hm_format_domain_plot <- function(p, bbox, title = NULL, coord = "fixed") {
 
   coord <- match.arg(coord, c("fixed", "quickmap"))
@@ -252,7 +242,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_plot_regular_domain <- function(x, bbox = NULL, title = NULL, show_map = TRUE,
                                     show_points = FALSE, grid_res = NULL,
                                     grid_colour = "grey55", grid_linewidth = 0.35,
@@ -300,7 +289,6 @@ if (getRversion() >= "2.15.1") {
 
 
 
-# @noRd
 .hm_plot_rotated_domain <- function(x, bbox = NULL, title = NULL, show_map = TRUE,
                                     show_points = FALSE, grid_colour = "grey55",
                                     grid_linewidth = 0.35, point_size = 0.5,
@@ -404,7 +392,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-# @noRd
 .hm_exceedance_metrics <- function(x, threshold) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -435,7 +422,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-# @noRd
 .hm_exceedance_regular_polygons <- function(coords, bbox, grid_res = NULL,
                                             metric = "count") {
 
@@ -476,7 +462,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-# @noRd
 .hm_exceedance_corner_matrix <- function(z) {
 
   nr <- nrow(z)
@@ -509,7 +494,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-# @noRd
 .hm_exceedance_rotated_polygons <- function(coords, bbox, metric = "count") {
 
   required <- c("lon", "lat", "rlon", "rlat",
@@ -561,7 +545,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-# @noRd
 .hm_exceedance_polygon_bbox <- function(cells) {
 
   if (is.null(cells) || !is.data.frame(cells))
@@ -575,7 +558,6 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
     lat_max = max(cells$lat, na.rm = TRUE))
 }
 
-# @noRd
 .hm_exceedance_union_bbox <- function(bbox_a, bbox_b) {
 
   keys   <- c("lon_min", "lon_max", "lat_min", "lat_max")
@@ -684,7 +666,6 @@ hm_plot_exceedance <- function(x, threshold, metric = "count",
 
 
 
-# @noRd
 .hm_exceedance_time_summary <- function(x, threshold, by = "year") {
 
   by <- match.arg(by, c("year", "2_years", "5_years", "decade"))
@@ -861,15 +842,13 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
     bbox <- .hm_validate_bbox(bbox, coords)
   }
 
-  # Colour palette — muted tones that are distinguishable without being
-  # visually overwhelming. Users can override via the `palette` argument.
   default_colours <- c(
-    "Weibull"              = "#7BAFD4",   # soft steel blue
-    "Gamma"                = "#8FC98F",   # soft green
-    "Lognormal"            = "#F4A95A",   # soft amber
-    "Gumbel"               = "#C8A0C8",   # soft lavender
-    "Zero-trunc. Gaussian" = "#E88080",   # soft rose
-    "Zero-trunc. Laplace"  = "#C4956A",   # soft tan
+    "Weibull"              = "#7BAFD4",
+    "Gamma"                = "#8FC98F",
+    "Lognormal"            = "#F4A95A",
+    "Gumbel"               = "#C8A0C8",
+    "Zero-trunc. Gaussian" = "#E88080",
+    "Zero-trunc. Laplace"  = "#C4956A",
     "No fit"               = "grey85"
   )
 
@@ -879,7 +858,6 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
     palette <- default_colours[families]
     palette[is.na(palette)] <- "grey85"
   } else {
-    # User-supplied palette: fill any missing families with grey
     missing_fam <- setdiff(families, names(palette))
     palette[missing_fam] <- "grey85"
     palette <- palette[families]
@@ -888,18 +866,10 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
   if (is.null(title))
     title <- "Best-fitting marginal distribution by grid cell"
 
-  # Build filled cell polygons reusing the same helpers as hm_plot_exceedance().
-  # This ensures regular and rotated grids are handled identically — regular
-  # grids get axis-aligned rectangles, rotated grids get true curvilinear
-  # quadrilaterals via the corner-matrix interpolation already implemented.
   #
-  # The only change vs hm_plot_exceedance() is that cells are coloured by
-  # distribution family (discrete) instead of exceedance value (continuous).
 
   plot_type <- .hm_resolve_plot_type(x)
 
-  # Temporarily attach a numeric dummy column so we can reuse the polygon
-  # builders, then swap in the distribution label afterwards
   coords$exceedance_count     <- seq_len(nrow(coords))
   coords$exceedance_frequency <- seq_len(nrow(coords))
 
@@ -918,13 +888,9 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
     )
   }
 
-  # Map poly_id back to distribution label.
-  # poly_id is "cell_k" where k is the row index within the bbox subset.
-  # We recover k and look up the label from coords.
   poly_ids <- unique(cells_raw$poly_id)
   k_index  <- as.integer(sub("cell_", "", poly_ids))
 
-  # For regular grids the subset is bbox-filtered; rebuild the mapping
   if (plot_type == "regular") {
     coords_in_bbox <- coords[
       coords$lon >= bbox[["lon_min"]] & coords$lon <= bbox[["lon_max"]] &
@@ -965,7 +931,6 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
       na.value = "grey85"
     )
 
-  # Draw map borders on top of the filled cells
   if (isTRUE(show_map) && requireNamespace("maps", quietly = TRUE)) {
     p <- p + ggplot2::borders(database = "world",
                                fill      = NA,
@@ -1024,7 +989,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
 
   cell_id <- as.integer(cell_id)
 
-  # Retrieve GoF data (KS, QQ, params) via the existing function
   gof <- hm_marginal_gof(X, fits, cell_id = cell_id)
 
   xj    <- X[, cell_id]
@@ -1032,7 +996,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
   dist  <- gof$dist
   label <- gof$dist_label
 
-  # Build title from coordinates if hm_hazard object is supplied
   if (is.null(title)) {
     if (!is.null(x) && !is.null(x$coords) && is.data.frame(x$coords) &&
         cell_id <= nrow(x$coords)) {
@@ -1047,7 +1010,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
 
   params <- gof$params
 
-  # Fitted PDF and CDF functions
   pfun <- switch(dist,
     weibull  = function(q) stats::pweibull(q, params$shape, params$scale),
     gamma    = function(q) stats::pgamma(q, params$shape, rate = params$rate),
@@ -1066,7 +1028,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     tlaplace = function(q) .dtlaplace(q, params$mu, params$b)
   )
 
-  # Grid for smooth PDF and CDF curves
   x_grid <- seq(min(xj) * 0.95, max(xj) * 1.05, length.out = 300)
   curve_df <- data.frame(
     x   = x_grid,
@@ -1074,7 +1035,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     cdf = pfun(x_grid)
   )
 
-  # Empirical CDF
   n     <- length(xj)
   ecdf_df <- data.frame(
     x = sort(xj),
@@ -1124,7 +1084,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-  # Combine with patchwork if available, otherwise return a list
   if (requireNamespace("patchwork", quietly = TRUE)) {
     combined <- patchwork::wrap_plots(p1, p2, p3, nrow = 1) +
       patchwork::plot_annotation(title = title,
@@ -1135,7 +1094,6 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     return(combined)
   }
 
-  # Fallback: return list of three ggplot objects
   message("Install the `patchwork` package to display all three panels ",
           "in one figure. Returning a list of three ggplot objects instead.")
   list(pdf = p1, cdf = p2, qq = p3)
@@ -1179,7 +1137,6 @@ hm_plot_dist_frequency <- function(fits, title = NULL, bar_fill = NULL,
   if (is.null(title))
     title <- "Frequency of best-fitting marginal distributions"
 
-  # Build summary table ordered by frequency
   labels <- fits$best_dist_label
   labels[is.na(labels)] <- "No fit"
 
@@ -1193,7 +1150,6 @@ hm_plot_dist_frequency <- function(fits, title = NULL, bar_fill = NULL,
     stringsAsFactors = FALSE
   )
 
-  # Same muted palette as hm_plot_best_dist() for visual consistency
   base_colours <- c(
     "Weibull"              = "#7BAFD4",
     "Gamma"                = "#8FC98F",
@@ -1310,17 +1266,14 @@ hm_plot_correlogram <- function(corg, title = NULL,
   p <- ggplot2::ggplot(corg,
                         ggplot2::aes(x = bin_center, y = mean_tau))
 
-  # Zero reference line drawn first so it sits behind everything else
   if (isTRUE(show_zero))
     p <- p + ggplot2::geom_hline(yintercept = 0,
                                   linetype  = "dashed",
                                   colour    = "grey60",
                                   linewidth = 0.5)
 
-  # Connecting line
   p <- p + ggplot2::geom_line(colour = colour, linewidth = 0.8)
 
-  # Points sized by number of pairs in each bin
   if (isTRUE(show_points))
     p <- p + ggplot2::geom_point(
       ggplot2::aes(size = sqrt(n_pairs)),

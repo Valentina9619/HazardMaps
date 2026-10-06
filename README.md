@@ -67,9 +67,9 @@ scenarios <- hm_simulate_sf_kle(model, D, fits, n_scenarios = 1000)
 Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026). A modeling framework for
 the inoperability assessment of interdependent critical infrastructures
 exposed to spatially distributed natural hazards. *Reliability Engineering &
-System Safety*, 275, 112830.
+System Safety*, 275, 112830. DOI: 10.1016/j.ress.2026.112830
 
 Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
 Inoperability assessment of interdependent critical infrastructures exposed
 to natural hazards considering climate change. *International Journal of
-Disaster Risk Reduction*, 141, 106172.
+Disaster Risk Reduction*, 141, 106172. DOI: 10.1016/j.ijdrr.2026.106172

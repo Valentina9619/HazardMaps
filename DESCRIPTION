@@ -29,5 +29,8 @@ Suggests:
     fitdistrplus,
     patchwork,
     rvinecopulib,
-    MASS
+    MASS,
+    knitr,
+    rmarkdown
 Config/testthat/edition: 3
+VignetteBuilder: knitr
