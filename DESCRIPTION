@@ -17,7 +17,7 @@ Description: An R package for reproducible analysis of spatial dependence in env
 License: MIT + file LICENSE
 Encoding: UTF-8
 RoxygenNote: 7.3.3
-URL: https://github.com/Valentina9619/HazardMaps
+URL: https://github.com/Valentina9619/HazardMaps, https://valentina9619.github.io/HazardMaps/
 BugReports: https://github.com/Valentina9619/HazardMaps/issues
 Imports: 
     ncdf4,
