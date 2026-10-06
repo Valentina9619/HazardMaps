@@ -7,46 +7,19 @@
 hm_summarise_events(x, threshold = NULL)
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()] and
-[hm_decode_time()]. Typically the output of [hm_select_extreme_events()].}
+\item{x}{An \code{hm_hazard} object, typically from
+[hm_select_extreme_events()].}
 
-\item{threshold}{A single finite numeric value used to count exceeding
-cells. If `NULL` (the default), the value stored in
-`x$meta$filter$threshold` is used. An error is raised if neither is
-available.}
+\item{threshold}{Threshold used to count exceeding cells. If \code{NULL},
+read from \code{x$meta$filter$threshold}.}
 }
 \value{
-A data.frame with one row per time step and three columns:
-  \describe{
-    \item{`date`}{Date of the event (`Date` or `POSIXct`).}
-    \item{`n_cells_exceeded`}{Number of grid cells with value >= threshold.}
-    \item{`max_value`}{Domain-wide maximum hazard value on that day.}
-  }
+A data.frame with columns \code{date}, \code{n_cells_exceeded},
+  and \code{max_value}.
 }
 \description{
-Returns a data.frame with one row per time step, reporting the date, the
-number of grid cells that reached or exceeded the threshold, and the
-domain-wide maximum hazard value for that day.
-}
-\details{
-Intended to be called on an object already filtered by
-[hm_select_extreme_events()], in which case `threshold` is read
-automatically from `x$meta$filter$threshold`. It can also be called on an
-unfiltered object by supplying `threshold` explicitly, which summarises
-every time step in the dataset.
-}
-\examples{
-\dontrun{
-f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
-                 package = "HazardMaps")
-x <- hm_read_netcdf(f, var = "i10fg")
-x <- hm_standardize_coords(x)
-x <- hm_decode_time(x)
-
-x_extreme <- hm_select_extreme_events(x, threshold = 25)
-hm_summarise_events(x_extreme)
-}
-
+Returns a data.frame with one row per time step: date, number of cells
+that met the threshold, and domain-wide maximum value.
 }
 \seealso{
 [hm_select_extreme_events()]

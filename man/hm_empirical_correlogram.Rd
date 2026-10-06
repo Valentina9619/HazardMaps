@@ -7,45 +7,26 @@
 hm_empirical_correlogram(tau, D, n_bins = 30L, max_dist = NULL)
 }
 \arguments{
-\item{tau}{A symmetric numeric matrix of pairwise Kendall correlations,
-as returned by [hm_empirical_kendall()].}
+\item{tau}{Symmetric numeric matrix of pairwise Kendall correlations
+from [hm_empirical_kendall()].}
 
-\item{D}{A symmetric numeric distance matrix in kilometres, as returned
-by [hm_distance_matrix()]. Must have the same dimensions as `tau`.}
+\item{D}{Symmetric numeric distance matrix in km from
+[hm_distance_matrix()]. Must have the same dimensions as \code{tau}.}
 
-\item{n_bins}{Integer. Number of distance bins. Defaults to 30.}
+\item{n_bins}{Number of equal-width distance bins. Defaults to 30.}
 
-\item{max_dist}{Maximum distance in kilometres to include. Pairs beyond
-this distance are ignored. If `NULL` (default), the maximum observed
-distance is used.}
+\item{max_dist}{Maximum distance in km to include. Defaults to the
+observed maximum.}
 }
 \value{
-A data.frame with one row per non-empty bin and columns:
-  \describe{
-    \item{`bin_center`}{Mid-point of the distance bin in km.}
-    \item{`mean_tau`}{Average Kendall \eqn{\hat{\tau}} in the bin.}
-    \item{`n_pairs`}{Number of cell pairs contributing to the bin.}
-    \item{`bin_lo`}{Lower edge of the bin in km.}
-    \item{`bin_hi`}{Upper edge of the bin in km.}
-  }
+A data.frame with columns \code{bin_center}, \code{mean_tau},
+  \code{n_pairs}, \code{bin_lo}, and \code{bin_hi}.
 }
 \description{
-Bins pairwise Kendall correlations by inter-site distance to produce an
-empirical correlogram: average correlation as a function of distance.
-This is the key input for fitting a parametric spatial covariance model
-(e.g. Matérn) in the stochastic field module, following Eq. 5-6 in
-Clavijo Mesa et al. (2026, SF paper).
-}
-\details{
-Distance bins are constructed by dividing the range
-\eqn{[0, \texttt{max\_dist}]} into \code{n\_bins} equal-width intervals.
-Each bin reports the mean Kendall \eqn{\hat{\tau}} over all cell pairs
-whose inter-site distance falls within that interval, weighted by the
-number of pairs in the bin (proportional weighting, as in Eq. 6 of
-Clavijo Mesa et al., 2026).
-
-Only the upper triangle of the distance and correlation matrices is used
-to avoid double-counting.
+Bins pairwise Kendall correlations by inter-site distance to give
+average correlation as a function of distance. The result is the key
+input for fitting a covariance model in [hm_fit_correlation_model()],
+following Eq. 5--6 of Clavijo Mesa et al. (2026, SF paper).
 }
 \examples{
 \dontrun{
@@ -53,21 +34,14 @@ tau  <- hm_empirical_kendall(pit$Z, cell_idx = 1:50)
 D    <- hm_distance_matrix(coords[1:50, ])
 corg <- hm_empirical_correlogram(tau, D, n_bins = 20)
 head(corg)
-
-# Quick plot
-plot(corg$bin_center, corg$mean_tau, type = "b",
-     xlab = "Distance (km)", ylab = "Kendall tau",
-     main = "Empirical correlogram")
-abline(h = 0, lty = 2)
 }
 
 }
 \references{
 Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
-Inoperability assessment of interdependent critical infrastructures
-exposed to natural hazards considering climate change.
 \emph{International Journal of Disaster Risk Reduction}, 141, 106172.
 }
 \seealso{
-[hm_empirical_kendall()], [hm_distance_matrix()]
+[hm_empirical_kendall()], [hm_distance_matrix()],
+  [hm_fit_correlation_model()]
 }

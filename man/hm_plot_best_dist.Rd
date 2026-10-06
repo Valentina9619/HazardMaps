@@ -2,7 +2,7 @@
 % Please edit documentation in R/visualization.R
 \name{hm_plot_best_dist}
 \alias{hm_plot_best_dist}
-\title{Plot spatial distribution of best-fitting marginal families}
+\title{Plot best-fitting marginal distribution by grid cell}
 \usage{
 hm_plot_best_dist(
   x,
@@ -15,7 +15,7 @@ hm_plot_best_dist(
 )
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()].}
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()].}
 
 \item{fits}{The data.frame returned by [hm_fit_marginals()].}
 
@@ -40,16 +40,8 @@ If `NULL` (default), a built-in muted palette is used.}
 A `ggplot` object.
 }
 \description{
-Draws a spatial map of the study domain where each grid cell is coloured
-by the best-fitting marginal distribution family selected by
-[hm_fit_marginals()]. Reproduces the style of Fig. 6 in Clavijo Mesa
-et al. (2026, Reliability Engineering & System Safety).
-}
-\details{
-The colour palette assigns one colour per distribution family present in
-`fits`. Cells for which no distribution could be fitted are shown in grey.
-A world map background is added when the suggested package \code{maps} is
-available.
+Maps each cell by the marginal family selected by [hm_fit_marginals()].
+Reproduces Fig. 6 of Clavijo Mesa et al. (2026).
 }
 \examples{
 \dontrun{

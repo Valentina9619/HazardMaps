@@ -23,54 +23,42 @@ hm_plot_exceedance(
 )
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()].}
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()].}
 
-\item{threshold}{Numeric threshold used to define exceedances.}
+\item{threshold}{Numeric threshold defining exceedances.}
 
-\item{metric}{Metric to plot. Either `"count"` or `"frequency"`.}
+\item{metric}{\code{"count"} (default) or \code{"frequency"}.}
 
-\item{dataset}{Dataset/grid type. One of `"auto"`, `"copernicus"`,
-`"eurocordex"`, `"regular"`, or `"rotated"`.}
+\item{dataset}{Grid type: \code{"auto"}, \code{"copernicus"},
+\code{"eurocordex"}, \code{"regular"}, or \code{"rotated"}.}
 
-\item{bbox}{Optional named numeric vector with `lon_min`, `lon_max`, `lat_min`,
-and `lat_max`.}
+\item{bbox}{Optional named numeric vector with \code{lon_min},
+\code{lon_max}, \code{lat_min}, \code{lat_max}.}
 
 \item{title}{Optional plot title.}
 
-\item{show_map}{Logical. If `TRUE`, a world map is added when package `maps`
-is available.}
+\item{show_map}{Logical. Add world map background.}
 
-\item{show_grid}{Logical. If `TRUE`, draws cell borders.}
+\item{show_grid}{Logical. Draw cell borders.}
 
-\item{grid_res}{Optional grid resolution in degrees. Used only for regular grids.}
+\item{grid_res}{Grid resolution in degrees (regular grids only).}
 
-\item{colours}{Colour vector used for the filled cells.}
+\item{colours}{Colour ramp for filled cells.}
 
-\item{grid_colour}{Colour used for cell borders.}
+\item{grid_colour}{Cell border colour.}
 
-\item{grid_linewidth}{Line width used for cell borders.}
+\item{grid_linewidth}{Cell border width.}
 
-\item{cell_alpha}{Transparency of coloured cells.}
+\item{cell_alpha}{Cell transparency.}
 
 \item{legend_title}{Optional legend title.}
 
-\item{coord}{Coordinate display method. Either `"fixed"` or `"quickmap"`.}
+\item{coord}{\code{"fixed"} or \code{"quickmap"}.}
 }
 \value{
-A `ggplot` object.
+A \code{ggplot} object.
 }
 \description{
-Plots threshold exceedance count or frequency at each spatial grid cell.
-}
-\details{
-Exceedances are defined as time steps for which the hazard value is greater
-than or equal to `threshold`.
-
-By default, the function plots absolute exceedance count, i.e. the number of
-valid time steps exceeding the threshold at each grid cell. Set
-`metric = "frequency"` to plot the fraction of valid time steps exceeding the
-threshold.
-
-Filled cells are drawn using cell-boundary polygons. Therefore, the colour
-layer and the visible grid correspond to the same cell geometry.
+Maps exceedance count or frequency at each grid cell. Cells are drawn as
+filled polygons for both regular and rotated grids.
 }

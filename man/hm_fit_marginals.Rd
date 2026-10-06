@@ -4,106 +4,30 @@
 \alias{hm_fit_marginals}
 \title{Fit marginal distributions to each grid cell}
 \usage{
-hm_fit_marginals(
-  X,
-  dists = c("weibull", "gamma", "lnorm", "gumbel", "tnorm", "tlaplace"),
-  criterion = "bic"
-)
+hm_fit_marginals(X, dists = .hm_supported_dists, criterion = "bic")
 }
 \arguments{
-\item{X}{A numeric matrix of dimension \eqn{T \times N} (time steps by
-grid cells), as returned by [hm_to_matrix()] applied to the output of
-[hm_select_extreme_events()]. All values must be strictly positive.}
+\item{X}{A numeric matrix (\eqn{T \times N}) from [hm_to_matrix()].
+All values must be strictly positive.}
 
-\item{dists}{Character vector of candidate distribution families to fit.
-Any subset of \code{c("weibull", "gamma", "lnorm", "gumbel", "tnorm",
-"tlaplace")}. Defaults to all six.}
+\item{dists}{Candidate families. Any subset of
+\code{c("weibull", "gamma", "lnorm", "gumbel", "tnorm", "tlaplace")}.}
 
-\item{criterion}{Model-selection criterion. Either \code{"bic"}
-(default, used in Clavijo Mesa et al. 2026 SF paper) or \code{"aic"}.}
+\item{criterion}{Selection criterion: \code{"bic"} (default) or
+\code{"aic"}.}
 }
 \value{
-A data.frame with one row per grid cell and columns:
-  \describe{
-    \item{\code{cell_id}}{Integer cell index (column number of \code{X}).}
-    \item{\code{best_dist}}{Name of the selected distribution family.}
-    \item{\code{best_dist_label}}{Human-readable distribution name.}
-    \item{\code{params}}{Named list of MLE parameters for the best fit.}
-    \item{\code{loglik}}{Log-likelihood of the best fit.}
-    \item{\code{aic}}{AIC of the best fit.}
-    \item{\code{bic}}{BIC of the best fit.}
-    \item{\code{n_obs}}{Number of non-\code{NA} observations in the cell.}
-    \item{\code{n_failed}}{Number of candidate fits that failed to converge.}
-  }
-  The returned data.frame also carries an attribute \code{"fits_full"}: a
-  list of length \eqn{N}, where each element is a list of raw fit results
-  (one per candidate) for that cell. Use it with [hm_marginal_gof()].
+A data.frame with one row per cell and columns \code{cell_id},
+  \code{best_dist}, \code{best_dist_label}, \code{params}, \code{loglik},
+  \code{aic}, \code{bic}, \code{n_obs}, \code{n_failed}. The attribute
+  \code{"fits_full"} stores raw per-cell fit results for use in
+  [hm_marginal_gof()].
 }
 \description{
-For each grid cell (column) in the hazard matrix, fits a set of candidate
-parametric distributions by maximum likelihood and selects the best-fitting
-one using AIC or BIC.
-}
-\details{
-Fitting is performed on the event-focused sample produced by
-[hm_select_extreme_events()], where each row is an extreme-event day and
-each column is a grid cell. This matches the methodology in Clavijo Mesa
-et al. (2026), where marginal distributions are calibrated independently
-at each spatial location to capture site-specific hazard behaviour.
-
-Six candidate families are available:
-\itemize{
-  \item \code{"weibull"}: two-parameter Weibull (scale, shape). Dominant
-    in wind-gust fields.
-  \item \code{"gamma"}: two-parameter Gamma (shape, rate).
-  \item \code{"lnorm"}: Lognormal (meanlog, sdlog). Common in pre-Alpine
-    locations.
-  \item \code{"gumbel"}: Gumbel extreme-value (location mu, scale beta).
-  \item \code{"tnorm"}: zero-truncated Gaussian (mean, sd). Enforces
-    non-negative support.
-  \item \code{"tlaplace"}: zero-truncated Laplace (location mu, scale b).
-}
-
-Parameters are estimated by maximum likelihood. \code{"weibull"},
-\code{"gamma"} and \code{"lnorm"} use [fitdistrplus::fitdist()];
-\code{"gumbel"}, \code{"tnorm"} and \code{"tlaplace"} use
-[stats::optim()] with Nelder-Mead.
-
-The best-fitting distribution at each cell is selected by minimising either
-AIC or BIC (set with \code{criterion}). Both criteria are always computed
-and stored in the output. Cells for which all candidate fits fail are
-recorded with \code{NA} in the \code{best_dist} column.
-
-Requires the \code{fitdistrplus} package (listed in \code{Suggests}).
-}
-\examples{
-\dontrun{
-f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
-                 package = "HazardMaps")
-x <- hm_read_netcdf(f, var = "i10fg")
-x <- hm_standardize_coords(x)
-x <- hm_decode_time(x)
-x <- hm_select_extreme_events(x, threshold = 25)
-X <- hm_to_matrix(x)
-
-fits <- hm_fit_marginals(X)
-head(fits[, c("cell_id", "best_dist", "aic", "bic")])
-table(fits$best_dist)
-}
-
-}
-\references{
-Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026). A modeling framework
-for the inoperability assessment of interdependent critical infrastructures
-exposed to spatially distributed natural hazards.
-\emph{Reliability Engineering & System Safety}, 275, 112830.
-
-Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
-Inoperability assessment of interdependent critical infrastructures
-exposed to natural hazards considering climate change.
-\emph{International Journal of Disaster Risk Reduction}, 141, 106172.
+Fits candidate parametric distributions to each column of \code{X} by
+maximum likelihood and selects the best fit using AIC or BIC, following
+the methodology in Clavijo Mesa et al. (2026).
 }
 \seealso{
-[hm_marginal_gof()] for goodness-of-fit diagnostics,
-  [hm_pit_transform()] to apply the fitted CDFs.
+[hm_marginal_gof()], [hm_pit_transform()]
 }

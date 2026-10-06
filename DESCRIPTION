@@ -27,5 +27,7 @@ Suggests:
     testthat (>= 3.0.0),
     maps,
     fitdistrplus,
-    patchwork
+    patchwork,
+    rvinecopulib,
+    MASS
 Config/testthat/edition: 3

@@ -7,23 +7,22 @@
 hm_standardize_coords(x)
 }
 \arguments{
-\item{x}{An `hm_hazard` object returned by [hm_read_netcdf()].}
+\item{x}{An \code{hm_hazard} object returned by [hm_read_netcdf()].}
 }
 \value{
-The same `hm_hazard` object, but with `x$coords` replaced by a data.frame
-  containing at least `cell_id`, `lat`, and `lon`. Additional columns may be included
-  when available (e.g., rotated-grid indices).
+The same object with \code{x$coords} replaced by a data.frame
+  containing \code{cell_id}, \code{lat}, and \code{lon}.
 }
 \description{
-Converts raw NetCDF coordinates into a canonical coordinate table with one row
+Converts raw NetCDF coordinates into a canonical data.frame with one row
 per grid cell.
 }
 \details{
-Two coordinate encodings are supported:
-\itemize{
-  \item \strong{Regular grids:} latitude and longitude provided as 1D coordinates
-  (either pure vectors or 1D arrays with dimension attributes).
-  \item \strong{Curvilinear/rotated grids:} latitude and longitude provided as 2D arrays
-  (e.g., \code{lat(rlat, rlon)} and \code{lon(rlat, rlon)}).
+Regular grids supply \code{lat} and \code{lon} as 1D vectors; all
+combinations are expanded with \code{expand.grid()}. Rotated or
+curvilinear grids supply \code{lat} and \code{lon} as 2D matrices, with
+rotated indices appended when available.
 }
+\seealso{
+[hm_read_netcdf()], [hm_get_grid_geometry()]
 }

@@ -7,43 +7,23 @@
 hm_cluster_size(X, threshold, time = NULL)
 }
 \arguments{
-\item{X}{A numeric matrix of dimension \eqn{T \times N} (time steps by
-land cells), as returned by [hm_filter_land_cells()] applied after
-[hm_to_matrix()].}
+\item{X}{Numeric matrix (\eqn{T \times N}) from [hm_filter_land_cells()].}
 
-\item{threshold}{A single finite numeric value. Cells with values
-strictly below this threshold are not counted.}
+\item{threshold}{A single finite numeric value.}
 
-\item{time}{Optional vector of dates (length \eqn{T}) to attach to the
-output. When `NULL`, row indices are used. Typically
-`attr(X, "time")`.}
+\item{time}{Optional date vector of length \eqn{T}. Defaults to row
+indices.}
 }
 \value{
-A data.frame with one row per time step and columns:
-  \describe{
-    \item{`date`}{Date or row index of the time step.}
-    \item{`cluster_size`}{Number of cells \eqn{\geq} threshold on that
-      day.}
-    \item{`cluster_fraction`}{`cluster_size` as a fraction of the total
-      number of land cells.}
-  }
+A data.frame with columns \code{date}, \code{cluster_size},
+  and \code{cluster_fraction}.
 }
 \description{
-For each extreme-event day, counts the number of grid cells where the
-hazard value meets or exceeds a given threshold. This is the cluster-size
-metric \eqn{B(t)} defined in Appendix C of Clavijo Mesa et al. (2026,
-Copernicus paper, Eq. 21), used to validate whether a spatial dependence
-model reproduces the observed spatial footprint of extreme events.
-}
-\details{
-The cluster size on day \eqn{t} is:
-\deqn{B(t) = \sum_{d_l \in \mathcal{D}} \mathbf{1}\{H^*(d_l, t) \geq \tau\}}
-
-A large \eqn{B(t)} indicates a spatially widespread event; a small value
-indicates a localised event. The distribution of \eqn{B(t)} over all
-retained extreme-event days characterises the spatial tail behaviour of
-the hazard field and is used to compare observed vs model-generated
-scenarios (Table C3 in Clavijo Mesa et al., 2026).
+For each time step, counts the land cells where the hazard value meets
+or exceeds \code{threshold}. This is the cluster-size metric
+\eqn{B(t)} (Eq. 21, Appendix C of Clavijo Mesa et al., 2026) used to
+validate whether a dependence model reproduces the observed spatial
+footprint.
 }
 \examples{
 \dontrun{
@@ -51,15 +31,11 @@ X_land <- hm_filter_land_cells(X)
 cs     <- hm_cluster_size(X_land, threshold = 25,
                            time = attr(X_land, "time"))
 summary(cs$cluster_size)
-hist(cs$cluster_size, main = "Spatial cluster size distribution",
-     xlab = "Number of cells >= threshold")
 }
 
 }
 \references{
-Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026). A modeling framework
-for the inoperability assessment of interdependent critical
-infrastructures exposed to spatially distributed natural hazards.
+Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026).
 \emph{Reliability Engineering & System Safety}, 275, 112830.
 }
 \seealso{

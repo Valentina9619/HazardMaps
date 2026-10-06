@@ -7,49 +7,21 @@
 hm_select_extreme_events(x, threshold)
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()] and
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()] and
 [hm_decode_time()].}
 
-\item{threshold}{A single finite numeric value. Days where every grid cell
-is strictly below this value are removed.}
+\item{threshold}{A single finite numeric value.}
 }
 \value{
-The same `hm_hazard` object with `$data` and `$time` restricted to
-  extreme-event days. `$meta$filter` is added with three fields:
-  `threshold`, `n_days_original`, and `n_days_retained`.
+The same object with \code{$data} and \code{$time} restricted to
+  extreme-event days. \code{$meta$filter} records the threshold and day
+  counts for reproducibility.
 }
 \description{
-Subsets an `hm_hazard` object, retaining only the time steps (days) on
-which at least one grid cell in the full spatial domain has a hazard value
-greater than or equal to `threshold`.
-}
-\details{
-The filter is applied over the **entire spatial domain**. A day is retained
-when at least one grid cell reaches or exceeds `threshold`, ignoring `NA`
-values. Days where every cell is either below the threshold or `NA` are
-dropped.
-
-The returned object is a valid `hm_hazard` with the same structure as the
-input. `$data` is sliced along its time dimension, `$time` is replaced by
-the filtered dates, and `$meta$filter` records the threshold and day counts
-for reproducibility.
-
-Call this function **after** [hm_standardize_coords()] and
-[hm_decode_time()], and **before** [hm_to_matrix()].
-}
-\examples{
-\dontrun{
-f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
-                 package = "HazardMaps")
-x <- hm_read_netcdf(f, var = "i10fg")
-x <- hm_standardize_coords(x)
-x <- hm_decode_time(x)
-
-x_extreme <- hm_select_extreme_events(x, threshold = 25)
-x_extreme$meta$filter
-}
-
+Retains only the time steps in which at least one grid cell reaches or
+exceeds \code{threshold}. Call after [hm_decode_time()] and before
+[hm_to_matrix()].
 }
 \seealso{
-[hm_summarise_events()] to inspect the retained days as a table.
+[hm_summarise_events()]
 }

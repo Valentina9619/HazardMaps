@@ -2,65 +2,26 @@
 % Please edit documentation in R/marginals.R
 \name{hm_pit_transform}
 \alias{hm_pit_transform}
-\title{Apply the Probability Integral Transform to all grid cells}
+\title{Apply the Probability Integral Transform}
 \usage{
 hm_pit_transform(X, fits, gaussian = TRUE)
 }
 \arguments{
-\item{X}{A numeric matrix of dimension \eqn{T \times N}, as returned by
-[hm_to_matrix()] applied to the output of [hm_select_extreme_events()].}
+\item{X}{Numeric matrix (\eqn{T \times N}) from [hm_to_matrix()].}
 
-\item{fits}{The data.frame returned by [hm_fit_marginals()].}
+\item{fits}{data.frame from [hm_fit_marginals()].}
 
-\item{gaussian}{Logical. If \code{TRUE} (default), also returns the
-Gaussian scores matrix \eqn{Z = \Phi^{-1}(U)}, centred by subtracting
-the empirical column means (as in Eq. 4 of the SF paper).}
+\item{gaussian}{If \code{TRUE} (default), also returns centred Gaussian
+scores \eqn{Z = \Phi^{-1}(U)}.}
 }
 \value{
-A named list with:
-  \describe{
-    \item{\code{U}}{Numeric matrix \eqn{T \times N} of uniform PIT values
-      in \eqn{[0, 1]}.}
-    \item{\code{Z}}{Numeric matrix \eqn{T \times N} of centred Gaussian
-      scores. \code{NULL} when \code{gaussian = FALSE}.}
-    \item{\code{n_cells_ok}}{Number of cells successfully transformed.}
-    \item{\code{n_cells_skipped}}{Number of cells skipped due to missing
-      fit (recorded as \code{NA} columns in \code{U} and \code{Z}).}
-  }
+A list with \code{U} (uniform matrix), \code{Z} (Gaussian scores
+  or \code{NULL}), \code{n_cells_ok}, and \code{n_cells_skipped}.
 }
 \description{
-Transforms the hazard matrix to uniform margins by applying each cell's
-fitted CDF, then optionally applies Gaussian anamorphosis (probit
-transform) to obtain standardised Gaussian scores.
-}
-\details{
-This function implements Equations (3) and (4) from Clavijo Mesa et al.
-(2026, SF paper):
-
-\deqn{u_l(t) = F_l(H^*(d_l, t)) \in [0, 1]}
-
-\deqn{Z_l(t) = \Phi^{-1}(u_l(t))}
-
-The uniform matrix \eqn{U} is the input to copula fitting
-(\code{fit_copula.R}). The Gaussian scores matrix \eqn{Z} is the input
-to spatial dependence estimation and KLE-based stochastic field generation
-(\code{fit_SF.R}).
-
-Uniform values are clipped to \eqn{[10^{-6}, 1 - 10^{-6}]} before the
-probit step to avoid infinite Gaussian scores at the boundaries.
-}
-\examples{
-\dontrun{
-fits <- hm_fit_marginals(X)
-pit  <- hm_pit_transform(X, fits)
-
-# Uniform matrix for copula fitting
-dim(pit$U)
-
-# Gaussian scores matrix for stochastic field
-dim(pit$Z)
-}
-
+Transforms \code{X} to uniform margins using each cell's fitted CDF, then
+optionally applies the probit transform to obtain centred Gaussian scores.
+Implements Equations (3)--(4) from Clavijo Mesa et al. (2026, SF paper).
 }
 \seealso{
 [hm_fit_marginals()], [hm_marginal_gof()]

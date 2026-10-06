@@ -7,55 +7,20 @@
 hm_filter_land_cells(X, min_valid = 0.8)
 }
 \arguments{
-\item{X}{A numeric matrix of dimension \eqn{T \times N} as returned by
-[hm_to_matrix()].}
+\item{X}{A numeric matrix as returned by [hm_to_matrix()].}
 
-\item{min_valid}{A single numeric value in \eqn{(0, 1]}. Columns where
-the fraction of finite positive values is below this threshold are
-dropped. Defaults to `0.8`.}
+\item{min_valid}{Minimum fraction of valid observations required to keep
+a column. Defaults to \code{0.8}.}
 }
 \value{
-A numeric matrix with only land columns retained. Two attributes
-  are attached:
-  \describe{
-    \item{`land_idx`}{Integer vector of the retained column indices in
-      the original matrix.}
-    \item{`coords`}{Coordinate data.frame restricted to the retained
-      columns, when the original matrix carries a `coords` attribute.}
-  }
+A matrix with only land columns retained. Attributes
+  \code{land_idx}, \code{coords}, and \code{time} are attached.
 }
 \description{
-Drops columns from the hazard matrix that contain too few valid
-(finite, positive) observations to support marginal fitting or spatial
-dependence estimation. This is the standard pre-processing step before
-[hm_fit_marginals()] or [hm_empirical_kendall()] on rotated-grid datasets
-such as EURO-CORDEX, where sea cells produce all-NA or all-zero columns.
-}
-\details{
-A column is retained when the fraction of finite, strictly positive
-values is at least `min_valid`. The default of `0.8` means a cell must
-have valid data on at least 80 percent of the extreme-event days to be
-kept. The indices of retained columns are stored as attribute
-`"land_idx"` on the output matrix, so results can be mapped back to the
-full coordinate table for plotting.
-}
-\examples{
-\dontrun{
-f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc",
-                 package = "HazardMaps")
-x <- hm_read_netcdf(f, var = "wsgsmax")
-x <- hm_standardize_coords(x)
-x <- hm_decode_time(x)
-x <- hm_select_extreme_events(x, threshold = 25)
-X <- hm_to_matrix(x)
-
-X_land <- hm_filter_land_cells(X)
-cat("Cells before:", ncol(X), " — after:", ncol(X_land), "\n")
-attr(X_land, "land_idx")
-}
-
+Drops columns where the fraction of finite positive values falls below
+\code{min_valid}. Needed for rotated-grid datasets such as EURO-CORDEX
+where sea cells produce all-NA columns.
 }
 \seealso{
-[hm_to_matrix()], [hm_fit_marginals()],
-  [hm_empirical_kendall()]
+[hm_to_matrix()], [hm_fit_marginals()]
 }

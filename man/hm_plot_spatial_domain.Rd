@@ -19,53 +19,35 @@ hm_plot_spatial_domain(
 )
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()].}
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()].}
 
-\item{dataset}{Dataset/grid type. One of `"auto"`, `"copernicus"`,
-`"eurocordex"`, `"regular"`, or `"rotated"`.}
+\item{dataset}{Grid type: \code{"auto"}, \code{"copernicus"},
+\code{"eurocordex"}, \code{"regular"}, or \code{"rotated"}.}
 
-\item{bbox}{Optional named numeric vector with `lon_min`, `lon_max`, `lat_min`,
-and `lat_max`.}
+\item{bbox}{Optional named numeric vector with \code{lon_min},
+\code{lon_max}, \code{lat_min}, \code{lat_max}.}
 
 \item{title}{Optional plot title.}
 
-\item{show_map}{Logical. If `TRUE`, a world map is added using the suggested
-package `maps`.}
+\item{show_map}{Logical. Add world map background (requires \code{maps}).}
 
-\item{show_points}{Logical. If `TRUE`, grid-cell centres are added as points.}
+\item{show_points}{Logical. Add grid-cell centre points.}
 
-\item{grid_res}{Optional grid resolution in degrees. Used only for regular
-grids. If `NULL`, it is inferred from the coordinate table.}
+\item{grid_res}{Grid resolution in degrees (regular grids only).}
 
-\item{grid_colour}{Colour used for grid lines.}
+\item{grid_colour}{Grid-line colour.}
 
-\item{grid_linewidth}{Line width used for grid lines.}
+\item{grid_linewidth}{Grid-line width.}
 
-\item{point_size}{Point size used when `show_points = TRUE`.}
+\item{point_size}{Point size when \code{show_points = TRUE}.}
 
-\item{coord}{Coordinate display method. Either `"fixed"` or `"quickmap"`.}
+\item{coord}{\code{"fixed"} or \code{"quickmap"}.}
 }
 \value{
-A `ggplot` object.
+A \code{ggplot} object.
 }
 \description{
-Plots the spatial domain of a hazard dataset as a grid in geographic
-longitude-latitude coordinates.
-}
-\details{
-This function is a public dispatcher. It selects a specialized plotting
-routine according to the dataset/grid type.
-
-\itemize{
-  \item `dataset = "copernicus"` or `"regular"` uses a regular longitude-latitude
-  plotting routine.
-  \item `dataset = "eurocordex"` or `"rotated"` uses a rotated-grid plotting
-  routine based on `rlon` and `rlat`.
-  \item `dataset = "auto"` uses `x$meta$grid_type` when available.
-}
-
-Regular grids are plotted as straight longitude-latitude grid lines. Rotated
-grids are plotted by connecting grid rows and columns in geographic coordinates,
-which is required for EURO-CORDEX-like datasets where `lat` and `lon` are
-two-dimensional coordinate matrices.
+Plots the spatial grid of a hazard dataset. Detects regular
+(Copernicus/ERA5) and rotated (EURO-CORDEX) grids automatically or from
+\code{dataset}.
 }

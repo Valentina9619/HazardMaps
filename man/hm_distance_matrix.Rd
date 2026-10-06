@@ -7,41 +7,28 @@
 hm_distance_matrix(coords)
 }
 \arguments{
-\item{coords}{A data.frame with at least `lat` and `lon` columns in
-decimal degrees, as stored in `x$coords` after
-[hm_standardize_coords()]. Typically the `coords` attribute of the
-matrix returned by [hm_filter_land_cells()].}
+\item{coords}{A data.frame with \code{lat} and \code{lon} columns in
+decimal degrees. Typically \code{attr(X_land, "coords")} from
+[hm_filter_land_cells()].}
 }
 \value{
-A symmetric numeric matrix of dimension \eqn{N \times N} where
-  entry \eqn{(l, o)} is the haversine distance in kilometres between
-  grid cells \eqn{l} and \eqn{o}. The diagonal is zero.
+A symmetric numeric matrix with diagonal zero.
 }
 \description{
-Returns a symmetric distance matrix giving the great-circle distance in
-kilometres between every pair of grid cells, using the haversine formula.
-This is the distance metric used throughout the spatial correlation
-analysis in Clavijo Mesa et al. (2026, SF paper, Eq. 5).
+Returns a symmetric \eqn{N \times N} distance matrix of great-circle
+distances in kilometres between all pairs of land cells (Eq. 5 of
+Clavijo Mesa et al., 2026, SF paper).
 }
 \examples{
 \dontrun{
-f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
-                 package = "HazardMaps")
-x <- hm_read_netcdf(f, var = "i10fg")
-x <- hm_standardize_coords(x)
-x <- hm_decode_time(x)
-x <- hm_select_extreme_events(x, threshold = 25)
-X <- hm_to_matrix(x)
-
-D <- hm_distance_matrix(x$coords)
+X_land <- hm_filter_land_cells(X)
+D      <- hm_distance_matrix(attr(X_land, "coords"))
 range(D)
 }
 
 }
 \references{
 Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
-Inoperability assessment of interdependent critical infrastructures
-exposed to natural hazards considering climate change.
 \emph{International Journal of Disaster Risk Reduction}, 141, 106172.
 }
 \seealso{

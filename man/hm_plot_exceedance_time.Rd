@@ -16,12 +16,12 @@ hm_plot_exceedance_time(
 )
 }
 \arguments{
-\item{x}{An `hm_hazard` object after [hm_standardize_coords()].}
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()].}
 
-\item{threshold}{Numeric threshold used to define exceedances.}
+\item{threshold}{Numeric threshold defining exceedances.}
 
-\item{by}{Temporal aggregation. One of `"year"`, `"2_years"`, `"5_years"`,
-or `"decade"`.}
+\item{by}{Aggregation period: \code{"year"}, \code{"2_years"},
+\code{"5_years"}, or \code{"decade"}.}
 
 \item{title}{Optional plot title.}
 
@@ -34,16 +34,10 @@ or `"decade"`.}
 \item{bar_colour}{Bar border colour.}
 }
 \value{
-A `ggplot` object.
+A \code{ggplot} object.
 }
 \description{
-Plots the number of extreme-event days aggregated by year, two-year periods,
-five-year periods, or decades.
-}
-\details{
-An extreme-event day is counted when at least one grid cell in the spatial
-domain has a hazard value greater than or equal to `threshold`.
-
-Therefore, each day is counted at most once, independently of how many grid
-cells exceed the threshold on that day.
+Bar chart of extreme-event days aggregated by year, two-year, five-year
+or decade periods. A day is counted once when at least one cell exceeds
+\code{threshold}.
 }

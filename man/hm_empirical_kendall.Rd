@@ -7,54 +7,38 @@
 hm_empirical_kendall(Z, cell_idx = NULL)
 }
 \arguments{
-\item{Z}{A numeric matrix of dimension \eqn{T \times N} of centred
-Gaussian scores, as returned in `pit$Z` by [hm_pit_transform()].}
+\item{Z}{Numeric matrix (\eqn{T \times N}) of centred Gaussian scores
+from [hm_pit_transform()].}
 
-\item{cell_idx}{Optional integer vector of column indices to use. When
-`NULL` (default), all columns are used.}
+\item{cell_idx}{Optional integer vector of column indices. Defaults to
+all columns.}
 }
 \value{
-A symmetric numeric matrix of dimension \eqn{N \times N} (or
-  \eqn{|}\code{cell_idx}\eqn{| \times |}\code{cell_idx}\eqn{|}) of
-  pairwise Kendall \eqn{\hat{\tau}} values in \eqn{[-1, 1]}.
+A symmetric \eqn{N \times N} matrix of Kendall \eqn{\hat{\tau}}
+  values in \eqn{[-1, 1]}.
 }
 \description{
 Estimates Kendall's \eqn{\hat{\tau}} between every pair of grid cells
-from the Gaussian scores matrix produced by [hm_pit_transform()].
-This is the spatial dependence measure used in Clavijo Mesa et al.
-(2026, Copernicus paper, Appendix C, Eq. 20) to validate copula and
-stochastic-field models.
+from the Gaussian scores matrix \code{Z} from [hm_pit_transform()].
+Implements Eq. 20 of Clavijo Mesa et al. (2026, Copernicus paper).
 }
 \details{
-Kendall's \eqn{\tau} is computed on the Gaussian scores `Z` rather than
-on the raw or uniform values, following the practice in Clavijo Mesa et
-al. (2026). Because \eqn{\tau} is invariant under strictly monotone
-transformations, the result is identical to computing it on `U` or on
-the original wind-gust values, but using `Z` avoids numerical issues at
-the boundaries of the uniform scale.
-
-Computing all \eqn{N(N-1)/2} pairs is expensive for large grids. For
-EURO-CORDEX-scale datasets (N > 1000) consider supplying a random
-subsample of column indices via `cell_idx`.
+For large grids (N > 1000) supply a subsample via \code{cell_idx} to
+keep computation feasible.
 }
 \examples{
 \dontrun{
 fits <- hm_fit_marginals(X)
 pit  <- hm_pit_transform(X, fits)
-
-# Use a subsample of 30 cells to keep computation fast
-tau <- hm_empirical_kendall(pit$Z, cell_idx = 1:30)
+tau  <- hm_empirical_kendall(pit$Z, cell_idx = 1:30)
 range(tau)
 }
 
 }
 \references{
-Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026). A modeling framework
-for the inoperability assessment of interdependent critical
-infrastructures exposed to spatially distributed natural hazards.
+Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026).
 \emph{Reliability Engineering & System Safety}, 275, 112830.
 }
 \seealso{
-[hm_pit_transform()], [hm_empirical_correlogram()],
-  [hm_distance_matrix()]
+[hm_pit_transform()], [hm_empirical_correlogram()]
 }

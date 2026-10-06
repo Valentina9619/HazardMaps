@@ -9,24 +9,23 @@ hm_read_netcdf(file, var = NULL)
 \arguments{
 \item{file}{Path to a NetCDF file.}
 
-\item{var}{Optional. Name of the hazard variable. If `NULL` and multiple variables exist,
-an error is raised (safe default).}
+\item{var}{Name of the hazard variable. If \code{NULL} and the file
+contains exactly one variable, it is selected automatically.}
 }
 \value{
-An object of class `hm_hazard`.
+An object of class \code{hm_hazard}.
 }
 \description{
-Reads a NetCDF file containing a hazard variable on a spatial grid (regular or rotated)
-and returns a basic `hm_hazard` object. CRS is NOT required.
+Reads a NetCDF file containing a hazard variable on a spatial grid
+(regular or rotated) and returns an `hm_hazard` object. CRS is not
+required.
 }
 \details{
-The function supports NetCDF files following common CF conventions for spatial
-coordinates. Latitude and longitude may be provided either as coordinate variables
-or as dimension coordinates, and may be encoded as:
-\itemize{
-  \item one-dimensional regular grids (e.g., Copernicus / ERA5 products),
-  \item two-dimensional curvilinear or rotated grids (e.g., EURO-CORDEX products).
+Supports CF-convention NetCDF files with regular grids (e.g. Copernicus,
+ERA5) and rotated or curvilinear grids (e.g. EURO-CORDEX). Coordinate
+names \code{lat}/\code{lon} and \code{latitude}/\code{longitude} are
+detected automatically.
 }
-Coordinate names \code{lat}/\code{lon} and \code{latitude}/\code{longitude}
-are automatically detected.
+\seealso{
+[hm_standardize_coords()], [hm_decode_time()]
 }

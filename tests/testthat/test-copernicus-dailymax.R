@@ -1,7 +1,3 @@
-# Tests for the Copernicus daily maximum wind-gust dataset (regular grid).
-# Covers the full pipeline: ingest → coordinates → time → matrix → event
-# selection → event summary → visualization.
-
 test_that("Copernicus dailymax NetCDF ingests with 1D lat/lon", {
   f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
                    package = "HazardMaps")
@@ -115,12 +111,10 @@ test_that("Copernicus extreme events can be selected by threshold", {
   expect_equal(x_ext$meta$filter$n_days_original, length(x$time))
   expect_equal(x_ext$meta$filter$n_days_retained, length(x_ext$time))
 
-  # $data time dimension must match the number of retained dates
   d    <- dim(x_ext$data)
   tidx <- which(d == length(x_ext$time))
   expect_length(tidx, 1L)
 
-  # Every retained day must have at least one cell >= threshold
   X       <- hm_to_matrix(x_ext)
   row_max <- apply(X, 1, max, na.rm = TRUE)
   expect_true(all(row_max >= 25))
@@ -169,12 +163,10 @@ test_that("Copernicus marginal distributions can be fitted", {
   expect_true(all(c("cell_id", "best_dist", "aic", "bic",
                     "params", "n_obs", "n_failed") %in% names(fits)))
 
-  # Weibull must be the dominant distribution for wind-gust data
   dist_counts <- table(fits$best_dist)
   expect_true("weibull" %in% names(dist_counts))
   expect_true(dist_counts["weibull"] == max(dist_counts))
 
-  # Every cell must have enough observations and a successful fit
   expect_true(all(fits$n_obs > 0L))
   expect_true(all(!is.na(fits$best_dist)))
 })
@@ -206,7 +198,6 @@ test_that("Copernicus goodness-of-fit diagnostic works", {
   expect_true(is.data.frame(gof$qq))
   expect_true(all(c("theoretical", "empirical") %in% names(gof$qq)))
 
-  # A good fit: KS statistic should be small (< 0.2 for wind-gust data)
   expect_lt(gof$ks_statistic, 0.2)
 })
 
@@ -227,21 +218,16 @@ test_that("Copernicus PIT transform produces valid uniform and Gaussian matrices
   fits <- hm_fit_marginals(X)
   pit  <- hm_pit_transform(X, fits)
 
-  # Output structure
   expect_true(is.list(pit))
   expect_true(all(c("U", "Z", "n_cells_ok", "n_cells_skipped") %in% names(pit)))
 
-  # U and Z must have the same dimensions as X
   expect_equal(dim(pit$U), dim(X))
   expect_equal(dim(pit$Z), dim(X))
 
-  # U must be in (0, 1) — it is the uniform PIT output
   expect_true(all(pit$U >= 0 & pit$U <= 1, na.rm = TRUE))
 
-  # Z can be negative — it is the Gaussian anamorphosis of U
   expect_true(all(is.finite(pit$Z), na.rm = TRUE))
 
-  # All cells must have been transformed successfully
   expect_equal(pit$n_cells_ok,      ncol(X))
   expect_equal(pit$n_cells_skipped, 0L)
 })
@@ -439,8 +425,6 @@ test_that("Copernicus cluster size output is consistent", {
                     "cluster_fraction") %in% names(cs)))
   expect_equal(nrow(cs), nrow(X_land))
 
-  # Every retained day must have at least one cell >= threshold
-  # (because X_land comes from hm_select_extreme_events)
   expect_true(all(cs$cluster_size >= 1L))
   expect_true(all(cs$cluster_fraction > 0 & cs$cluster_fraction <= 1))
 })
@@ -470,4 +454,189 @@ test_that("Copernicus correlogram can be plotted", {
          title = "Empirical correlogram — Copernicus wind gust")
 
   expect_true(inherits(p, "ggplot"))
+})
+
+
+test_that("Copernicus C-vine copula can be fitted and simulated", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+
+  U_small    <- pit$U[, 1:10]
+  fits_small <- fits[1:10, ]
+
+  cop <- hm_fit_copula(U_small, type = "cvine")
+
+  expect_s3_class(cop, "hm_copula")
+  expect_equal(cop$type,    "cvine")
+  expect_equal(cop$n_cells, 10L)
+  expect_equal(cop$n_obs,   nrow(U_small))
+
+  scenarios <- hm_simulate_copula(cop, fits_small,
+                                   n_scenarios = 50L, seed = 1L)
+
+  expect_true(is.matrix(scenarios))
+  expect_equal(dim(scenarios), c(50L, 10L))
+  expect_true(all(scenarios >= 0, na.rm = TRUE))
+  expect_equal(attr(scenarios, "type"), "cvine")
+})
+
+
+test_that("Copernicus D-vine copula can be fitted and simulated", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+
+  U_small    <- pit$U[, 1:10]
+  fits_small <- fits[1:10, ]
+
+  cop <- hm_fit_copula(U_small, type = "dvine")
+
+  expect_s3_class(cop, "hm_copula")
+  expect_equal(cop$type,    "dvine")
+  expect_equal(cop$n_cells, 10L)
+
+  scenarios <- hm_simulate_copula(cop, fits_small,
+                                   n_scenarios = 50L, seed = 1L)
+
+  expect_true(is.matrix(scenarios))
+  expect_equal(dim(scenarios), c(50L, 10L))
+  expect_true(all(scenarios >= 0, na.rm = TRUE))
+  expect_equal(attr(scenarios, "type"), "dvine")
+})
+
+
+test_that("Copernicus Gaussian copula can be fitted and simulated", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+
+  U_small    <- pit$U[, 1:10]
+  fits_small <- fits[1:10, ]
+
+  cop <- hm_fit_copula(U_small, type = "gaussian")
+
+  expect_s3_class(cop, "hm_copula")
+  expect_equal(cop$type,    "gaussian")
+  expect_equal(cop$n_cells, 10L)
+
+  R <- cop$model$R
+  expect_true(isSymmetric(R))
+  expect_true(all(eigen(R)$values > 0))
+
+  scenarios <- hm_simulate_copula(cop, fits_small,
+                                   n_scenarios = 50L, seed = 1L)
+
+  expect_true(is.matrix(scenarios))
+  expect_equal(dim(scenarios), c(50L, 10L))
+  expect_true(all(scenarios >= 0, na.rm = TRUE))
+  expect_equal(attr(scenarios, "type"), "gaussian")
+})
+
+
+test_that("Copernicus spatial correlation model can be fitted", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+  tau    <- hm_empirical_kendall(pit$Z, cell_idx = 1:20)
+  D      <- hm_distance_matrix(attr(X_land, "coords")[1:20, ])
+  corg   <- hm_empirical_correlogram(tau, D, n_bins = 10)
+
+  model <- hm_fit_correlation_model(corg)
+
+  expect_s3_class(model, "hm_corrmodel")
+  expect_true(!is.null(model$best_family))
+  expect_true(model$best_family %in%
+                c("matern", "exponential", "gaussian", "spherical"))
+  expect_true(all(is.finite(model$best_params)))
+  expect_true(model$best_rmse < 0.5)
+
+  expect_s3_class(model$all_fits, "data.frame")
+  expect_equal(nrow(model$all_fits), 4L)
+  expect_true(all(model$all_fits$converged))
+})
+
+
+test_that("Copernicus KLE scenarios have correct structure and range", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  expect_true(nzchar(f))
+  expect_true(file.exists(f))
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+  tau    <- hm_empirical_kendall(pit$Z, cell_idx = 1:20)
+  D      <- hm_distance_matrix(attr(X_land, "coords")[1:20, ])
+  corg   <- hm_empirical_correlogram(tau, D, n_bins = 10)
+  model  <- hm_fit_correlation_model(corg)
+
+  scenarios <- hm_simulate_sf_kle(model, D, fits[1:20, ],
+                                   n_scenarios = 50L,
+                                   var_retain  = 0.95,
+                                   seed        = 42L)
+
+  expect_true(is.matrix(scenarios))
+  expect_equal(dim(scenarios), c(50L, 20L))
+  expect_true(all(scenarios > 0, na.rm = TRUE))
+
+  expect_true(!is.null(attr(scenarios, "k_modes")))
+  expect_true(!is.null(attr(scenarios, "var_explained")))
+  expect_lte(attr(scenarios, "k_modes"), 20L)
+  expect_gte(attr(scenarios, "var_explained"), 0.95)
 })

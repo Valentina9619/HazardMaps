@@ -7,57 +7,21 @@
 hm_marginal_gof(X, fits, cell_id)
 }
 \arguments{
-\item{X}{A numeric matrix (same one passed to [hm_fit_marginals()]).}
+\item{X}{Numeric matrix passed to [hm_fit_marginals()].}
 
-\item{fits}{The data.frame returned by [hm_fit_marginals()].}
+\item{fits}{data.frame from [hm_fit_marginals()].}
 
-\item{cell_id}{Integer. The cell to diagnose (column index of \code{X}).}
+\item{cell_id}{Column index to diagnose.}
 }
 \value{
-A named list with:
-  \describe{
-    \item{\code{cell_id}}{The cell examined.}
-    \item{\code{dist}}{Selected distribution name.}
-    \item{\code{dist_label}}{Human-readable distribution name.}
-    \item{\code{params}}{MLE parameters of the selected fit.}
-    \item{\code{ks_statistic}}{KS test statistic D.}
-    \item{\code{ks_pvalue}}{KS p-value (interpret with caution; see Details).}
-    \item{\code{qq}}{data.frame with \code{theoretical} and
-      \code{empirical} quantiles for QQ plotting.}
-    \item{\code{n_obs}}{Number of observations used.}
-  }
+A list with \code{cell_id}, \code{dist}, \code{dist_label},
+  \code{params}, \code{ks_statistic}, \code{ks_pvalue}, \code{qq},
+  and \code{n_obs}.
 }
 \description{
-Computes the Kolmogorov-Smirnov statistic and returns the data needed to
-draw a QQ plot for the best-fitting marginal distribution at a chosen cell.
-}
-\details{
-The KS statistic is provided as a **complementary diagnostic**, not as a
-model-selection criterion. As discussed in Clavijo Mesa et al. (2026),
-the best-fitting distribution is selected by BIC or AIC; the KS test
-and QQ plot are used afterwards to confirm that the selected model
-provides an adequate representation of the data (see Section 3.2 of the
-SF paper and Appendix B of the Copernicus paper).
-
-Note that the KS p-value reported here is computed with fitted (not
-fixed) parameters, so it should be interpreted with caution: the test
-is anti-conservative under MLE-fitted parameters, meaning p-values tend
-to be larger than their nominal level. The statistic itself remains a
-useful measure of the maximum deviation between the empirical and fitted
-CDFs.
-}
-\examples{
-\dontrun{
-fits <- hm_fit_marginals(X)
-gof  <- hm_marginal_gof(X, fits, cell_id = 1)
-
-# QQ plot
-plot(gof$qq$theoretical, gof$qq$empirical,
-     xlab = "Theoretical quantiles", ylab = "Empirical quantiles",
-     main = paste("QQ plot —", gof$dist_label, "| cell", gof$cell_id))
-abline(0, 1, col = "firebrick")
-}
-
+Returns the KS statistic and QQ data for the best-fitting distribution at
+a chosen cell. The KS test is a complementary diagnostic — distribution
+selection is done by AIC/BIC in [hm_fit_marginals()].
 }
 \seealso{
 [hm_fit_marginals()], [hm_pit_transform()]
