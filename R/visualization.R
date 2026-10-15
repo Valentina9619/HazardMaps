@@ -577,15 +577,9 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 #' Maps exceedance count or frequency at each grid cell. Cells are drawn as
 #' filled polygons for both regular and rotated grids.
 #'
-#' @param x An \code{hm_hazard} object after [hm_standardize_coords()].
+#' @inheritParams hm_plot_spatial_domain
 #' @param threshold Numeric threshold defining exceedances.
 #' @param metric \code{"count"} (default) or \code{"frequency"}.
-#' @param dataset Grid type: \code{"auto"}, \code{"copernicus"},
-#'   \code{"eurocordex"}, \code{"regular"}, or \code{"rotated"}.
-#' @param bbox Optional named numeric vector with \code{lon_min},
-#'   \code{lon_max}, \code{lat_min}, \code{lat_max}.
-#' @param title Optional plot title.
-#' @param show_map Logical. Add world map background.
 #' @param show_grid Logical. Draw cell borders.
 #' @param grid_res Grid resolution in degrees (regular grids only).
 #' @param colours Colour ramp for filled cells.
@@ -722,11 +716,10 @@ hm_plot_exceedance <- function(x, threshold, metric = "count",
 #' or decade periods. A day is counted once when at least one cell exceeds
 #' \code{threshold}.
 #'
-#' @param x An \code{hm_hazard} object after [hm_standardize_coords()].
+#' @inheritParams hm_plot_spatial_domain
 #' @param threshold Numeric threshold defining exceedances.
 #' @param by Aggregation period: \code{"year"}, \code{"2_years"},
 #'   \code{"5_years"}, or \code{"decade"}.
-#' @param title Optional plot title.
 #' @param xlab Optional x-axis label.
 #' @param ylab Optional y-axis label.
 #' @param bar_fill Bar fill colour.
@@ -776,14 +769,8 @@ hm_plot_exceedance_time <- function(x, threshold, by = "year",
 #' Maps each cell by the marginal family selected by [hm_fit_marginals()].
 #' Reproduces Fig. 6 of Clavijo Mesa et al. (2026).
 #'
-#' @param x An \code{hm_hazard} object after [hm_standardize_coords()].
+#' @inheritParams hm_plot_spatial_domain
 #' @param fits The data.frame returned by [hm_fit_marginals()].
-#' @param bbox Optional named numeric vector with `lon_min`, `lon_max`,
-#'   `lat_min`, and `lat_max` to control the plot extent. If `NULL`
-#'   (default), the extent is derived from the coordinate table with a
-#'   small padding so edge points are not clipped.
-#' @param title Optional plot title.
-#' @param show_map Logical. If `TRUE`, adds a world map background.
 #' @param palette Optional named character vector mapping distribution labels
 #'   to colours. Names must match the values in `fits$best_dist_label`
 #'   (e.g. `"Weibull"`, `"Gamma"`, `"Lognormal"`, `"Gumbel"`,

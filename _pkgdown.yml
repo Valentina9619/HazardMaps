@@ -2,3 +2,58 @@ url: https://valentina9619.github.io/HazardMaps/
 template:
   bootstrap: 5
 
+reference:
+  - title: Data preparation
+    desc: Read, standardize, and reshape gridded NetCDF datasets.
+    contents:
+      - hm_read_netcdf
+      - hm_standardize_coords
+      - hm_get_grid_geometry
+      - hm_decode_time
+      - hm_to_matrix
+      - hm_filter_land_cells
+
+  - title: Event selection
+    desc: Filter extreme-event days and summarise their properties.
+    contents:
+      - hm_select_extreme_events
+      - hm_summarise_events
+
+  - title: Marginal distributions
+    desc: Fit, diagnose, and transform marginal distributions at each grid cell.
+    contents:
+      - hm_fit_marginals
+      - hm_marginal_gof
+      - hm_pit_transform
+
+  - title: Spatial dependence
+    desc: Estimate empirical spatial correlation and cluster-size statistics.
+    contents:
+      - hm_distance_matrix
+      - hm_empirical_kendall
+      - hm_empirical_correlogram
+      - hm_cluster_size
+
+  - title: Copula models
+    desc: Fit vine and Gaussian copulas and simulate pseudoscenarios.
+    contents:
+      - hm_fit_copula
+      - hm_simulate_copula
+
+  - title: Stochastic field models
+    desc: Fit parametric covariance models and simulate via KLE.
+    contents:
+      - hm_fit_correlation_model
+      - hm_simulate_sf_kle
+
+  - title: Visualization
+    desc: Plot spatial domains, exceedances, marginals, correlograms, and scenarios.
+    contents:
+      - hm_plot_spatial_domain
+      - hm_plot_exceedance
+      - hm_plot_exceedance_time
+      - hm_plot_best_dist
+      - hm_plot_marginal_fit
+      - hm_plot_dist_frequency
+      - hm_plot_correlogram
+      - hm_plot_scenario

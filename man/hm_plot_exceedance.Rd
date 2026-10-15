@@ -37,7 +37,7 @@ hm_plot_exceedance(
 
 \item{title}{Optional plot title.}
 
-\item{show_map}{Logical. Add world map background.}
+\item{show_map}{Logical. Add world map background (requires \code{maps}).}
 
 \item{show_grid}{Logical. Draw cell borders.}
 

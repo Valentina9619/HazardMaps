@@ -2,9 +2,14 @@ Package: HazardMaps
 Type: Package
 Title: Spatial Dependence Modeling and Pseudoscenario Generation for Natural Hazards
 Version: 0.1.0
-Authors@R: person("Maria Valentina", "Clavijo Mesa",
-                   email = "valentina.clavijo@usp.br",
-                   role = c("aut", "cre"))
+Authors@R: c(
+    person("Maria Valentina", "Clavijo Mesa",
+           email   = "valentina.clavijo@polimi.it",
+           role    = c("aut", "cre"),
+           comment = c(ORCID = "0000-0001-6052-5771")),
+    person("Enrico", "Zio",
+           role    = "ths",
+           comment = c(ORCID = "0000-0002-7108-637X")))
 Description: An R package for reproducible analysis of spatial dependence in environmental
              and climate-related variables. The package provides a unified workflow to
              ingest spatial datasets, estimate and visualize spatial correlation structures,

@@ -19,14 +19,12 @@ hm_plot_best_dist(
 
 \item{fits}{The data.frame returned by [hm_fit_marginals()].}
 
-\item{bbox}{Optional named numeric vector with `lon_min`, `lon_max`,
-`lat_min`, and `lat_max` to control the plot extent. If `NULL`
-(default), the extent is derived from the coordinate table with a
-small padding so edge points are not clipped.}
+\item{bbox}{Optional named numeric vector with \code{lon_min},
+\code{lon_max}, \code{lat_min}, \code{lat_max}.}
 
 \item{title}{Optional plot title.}
 
-\item{show_map}{Logical. If `TRUE`, adds a world map background.}
+\item{show_map}{Logical. Add world map background (requires \code{maps}).}
 
 \item{palette}{Optional named character vector mapping distribution labels
 to colours. Names must match the values in `fits$best_dist_label`
