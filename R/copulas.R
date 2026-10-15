@@ -15,9 +15,7 @@
 #' Fit a spatial copula model to the uniform PIT data
 #'
 #' Fits a C-vine, D-vine, or Gaussian copula to the uniform PIT matrix
-#' from [hm_pit_transform()], following Eq. 6 of Clavijo Mesa et al.
-#' (2026). The three structures correspond to the comparison in Table IV
-#' of that paper.
+#' from [hm_pit_transform()].
 #'
 #' Vine copulas are fitted via \code{rvinecopulib::vinecop()}. The
 #' Gaussian copula uses the sin-transform
@@ -112,7 +110,6 @@ hm_fit_copula <- function(U, type = "cvine", ...) {
 #'
 #' Draws \code{n_scenarios} realisations from a fitted copula and
 #' back-transforms to physical units via the inverse marginal CDFs.
-#' Implements Eq. 7--8 of Clavijo Mesa et al. (2026).
 #'
 #' Vine copulas are sampled via \code{rvinecopulib::rvinecop()}. The
 #' Gaussian copula uses \code{MASS::mvrnorm()} followed by the standard

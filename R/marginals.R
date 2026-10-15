@@ -11,7 +11,7 @@
 )
 
 
-# --- Gumbel distribution -----------------------------------------------------
+# Gumbel distribution
 
 .dgumbel <- function(x, mu, beta, log = FALSE) {
   if (beta <= 0) return(rep(if (log) -Inf else 0, length(x)))
@@ -28,7 +28,7 @@
 .qgumbel <- function(p, mu, beta) mu - beta * log(-log(p))
 
 
-# --- Zero-truncated Gaussian (x > 0) -----------------------------------------
+# Zero-truncated Gaussian (x > 0)
 
 .dtnorm <- function(x, mean, sd, log = FALSE) {
   if (sd <= 0) return(rep(if (log) -Inf else 0, length(x)))
@@ -52,7 +52,7 @@
 }
 
 
-# --- Zero-truncated Laplace (x > 0) ------------------------------------------
+# Zero-truncated Laplace (x > 0)
 
 .plaplace <- function(x, mu, b) {
   ifelse(x < mu,
@@ -86,7 +86,7 @@
 }
 
 
-# --- CDF / quantile dispatch --------------------------------------------------
+# CDF / quantile dispatch
 
 .hm_pfun <- function(dist, params) {
   switch(dist,
@@ -113,7 +113,7 @@
 }
 
 
-# --- MLE fitting for one cell ------------------------------------------------
+# MLE fitting for one cell
 
 .hm_fit_one <- function(x, dist) {
 
@@ -359,7 +359,6 @@ hm_marginal_gof <- function(X, fits, cell_id) {
 #'
 #' Transforms \code{X} to uniform margins using each cell's fitted CDF, then
 #' optionally applies the probit transform to obtain centred Gaussian scores.
-#' Implements Equations (3)--(4) from Clavijo Mesa et al. (2026, SF paper).
 #'
 #' @param X Numeric matrix (\eqn{T \times N}) from [hm_to_matrix()].
 #' @param fits data.frame from [hm_fit_marginals()].

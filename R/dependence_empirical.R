@@ -1,8 +1,7 @@
 #' Compute pairwise haversine distances between grid cells
 #'
 #' Returns a symmetric \eqn{N \times N} distance matrix of great-circle
-#' distances in kilometres between all pairs of land cells (Eq. 5 of
-#' Clavijo Mesa et al., 2026, SF paper).
+#' distances in kilometres between all pairs of land cells.
 #'
 #' @param coords A data.frame with \code{lat} and \code{lon} columns in
 #'   decimal degrees. Typically \code{attr(X_land, "coords")} from
@@ -66,7 +65,6 @@ hm_distance_matrix <- function(coords) {
 #'
 #' Estimates Kendall's \eqn{\hat{\tau}} between every pair of grid cells
 #' from the Gaussian scores matrix \code{Z} from [hm_pit_transform()].
-#' Implements Eq. 20 of Clavijo Mesa et al. (2026, Copernicus paper).
 #'
 #' For large grids (N > 1000) supply a subsample via \code{cell_idx} to
 #' keep computation feasible.
@@ -136,8 +134,7 @@ hm_empirical_kendall <- function(Z, cell_idx = NULL) {
 #'
 #' Bins pairwise Kendall correlations by inter-site distance to give
 #' average correlation as a function of distance. The result is the key
-#' input for fitting a covariance model in [hm_fit_correlation_model()],
-#' following Eq. 5--6 of Clavijo Mesa et al. (2026, SF paper).
+#' input for fitting a covariance model in [hm_fit_correlation_model()].
 #'
 #' @param tau Symmetric numeric matrix of pairwise Kendall correlations
 #'   from [hm_empirical_kendall()].
@@ -230,8 +227,7 @@ hm_empirical_correlogram <- function(tau, D, n_bins = 30L, max_dist = NULL) {
 #' Compute spatial cluster sizes of extreme events
 #'
 #' For each time step, counts the land cells where the hazard value meets
-#' or exceeds \code{threshold}. This is the cluster-size metric
-#' \eqn{B(t)} (Eq. 21, Appendix C of Clavijo Mesa et al., 2026) used to
+#' or exceeds \code{threshold}. This is the cluster-size metric used to
 #' validate whether a dependence model reproduces the observed spatial
 #' footprint.
 #'

@@ -767,7 +767,6 @@ hm_plot_exceedance_time <- function(x, threshold, by = "year",
 #' Plot best-fitting marginal distribution by grid cell
 #'
 #' Maps each cell by the marginal family selected by [hm_fit_marginals()].
-#' Reproduces Fig. 6 of Clavijo Mesa et al. (2026).
 #'
 #' @inheritParams hm_plot_spatial_domain
 #' @param fits The data.frame returned by [hm_fit_marginals()].
@@ -935,8 +934,7 @@ hm_plot_best_dist <- function(x, fits, bbox = NULL, title = NULL,
 #' Produces a three-panel diagnostic figure for the best-fitting marginal
 #' distribution at a chosen grid cell: (1) a histogram of the observed values
 #' with the fitted PDF overlaid, (2) the empirical vs fitted CDF, and (3) a
-#' quantile-quantile plot. Reproduces the style of Fig. 7 and Appendix B
-#' (Fig. B1) in Clavijo Mesa et al. (2026).
+#' quantile-quantile plot.
 #'
 #' @param X A numeric matrix (same one passed to [hm_fit_marginals()]).
 #' @param fits The data.frame returned by [hm_fit_marginals()].
@@ -1028,7 +1026,7 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     y = seq_len(n) / n
   )
 
-  # --- Panel 1: histogram + fitted PDF ------------------------------------
+  # Panel 1: histogram + fitted PDF ------------------------------------
   p1 <- ggplot2::ggplot(data.frame(x = xj), ggplot2::aes(x = x)) +
     ggplot2::geom_histogram(ggplot2::aes(y = ggplot2::after_stat(density)),
                             bins    = n_bins,
@@ -1044,7 +1042,7 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-  # --- Panel 2: empirical vs fitted CDF ----------------------------------
+  # Panel 2: empirical vs fitted CDF ----------------------------------
   p2 <- ggplot2::ggplot() +
     ggplot2::geom_step(data = ecdf_df,
                        ggplot2::aes(x = x, y = y),
@@ -1059,7 +1057,7 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
     ggplot2::theme_minimal(base_size = 11) +
     ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5))
 
-  # --- Panel 3: QQ plot --------------------------------------------------
+  # Panel 3: QQ plot --------------------------------------------------
   p3 <- ggplot2::ggplot(gof$qq,
                          ggplot2::aes(x = theoretical, y = empirical)) +
     ggplot2::geom_point(size = 0.8, colour = "grey40") +
@@ -1091,8 +1089,7 @@ hm_plot_marginal_fit <- function(X, fits, cell_id, title = NULL, x = NULL,
 #' Plot frequency of best-fitting marginal distribution families
 #'
 #' Draws a bar chart showing how many grid cells were assigned each
-#' distribution family by [hm_fit_marginals()]. Reproduces the style of
-#' Fig. A1 in Clavijo Mesa et al. (2026, Appendix A).
+#' distribution family by [hm_fit_marginals()].
 #'
 #' @param fits The data.frame returned by [hm_fit_marginals()].
 #' @param title Optional plot title.
@@ -1190,7 +1187,6 @@ hm_plot_dist_frequency <- function(fits, title = NULL, bar_fill = NULL,
 #' Draws the empirical correlogram produced by [hm_empirical_correlogram()]:
 #' average Kendall \eqn{\hat{\tau}} as a function of inter-site distance,
 #' with point size proportional to the number of cell pairs in each bin.
-#' Reproduces the style of Fig. 8 in Clavijo Mesa et al. (2026, SF paper).
 #'
 #' @details
 #' A horizontal dashed reference line is drawn at \eqn{\tau = 0} to help

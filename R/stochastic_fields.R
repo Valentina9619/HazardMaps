@@ -88,8 +88,7 @@
 #'
 #' Fits Matérn, Exponential, Gaussian, and/or Spherical covariance families
 #' to the correlogram from [hm_empirical_correlogram()] by weighted least
-#' squares (Eq. 6--7 of Clavijo Mesa et al., 2026, SF paper). Selects the
-#' best family by RMSE, matching Table 1 of that paper.
+#' squares. Selects the best family by RMSE.
 #'
 #' @param corg data.frame from [hm_empirical_correlogram()].
 #' @param families Covariance families to fit. Any subset of
@@ -172,10 +171,9 @@ hm_fit_correlation_model <- function(corg,
 #' Simulate hazard scenarios via Karhunen-Loève Expansion
 #'
 #' Generates \code{n_scenarios} synthetic hazard fields from the KLE of
-#' the fitted covariance model, following Eq. 8--11 of Clavijo Mesa et al.
-#' (2026, SF paper): build \eqn{\bar{C}}, eigen-decompose and truncate to
-#' \code{var_retain} variance, sample KLE coefficients, back-transform
-#' via \eqn{\Phi} and the inverse marginal CDFs.
+#' the fitted covariance model: build \eqn{\bar{C}}, eigen-decompose and
+#' truncate to \code{var_retain} variance, sample KLE coefficients,
+#' back-transform via \eqn{\Phi} and the inverse marginal CDFs.
 #'
 #' @param corrmodel An \code{hm_corrmodel} from [hm_fit_correlation_model()].
 #' @param D Symmetric distance matrix in km from [hm_distance_matrix()].
