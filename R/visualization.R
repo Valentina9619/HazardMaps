@@ -1287,3 +1287,107 @@ hm_plot_correlogram <- function(corg, title = NULL,
 
   p
 }
+
+
+
+#' Plot one simulated hazard scenario on the spatial grid
+#'
+#' Maps a single row of a scenario matrix produced by
+#' [hm_simulate_copula()] or [hm_simulate_sf_kle()] onto the spatial grid.
+#' Useful for visually inspecting the spatial coherence of generated
+#' pseudoscenarios.
+#'
+#' @inheritParams hm_plot_spatial_domain
+#' @param scenarios A numeric matrix (\eqn{S \times N}) returned by
+#'   [hm_simulate_copula()] or [hm_simulate_sf_kle()].
+#' @param coords A data.frame with \code{lat}, \code{lon}, and optionally
+#'   \code{rlon}/\code{rlat} columns. Typically \code{attr(X_land, "coords")}
+#'   from [hm_filter_land_cells()]. Must have \code{N} rows.
+#' @param scenario_id Integer. Row index of the scenario to plot. Defaults
+#'   to \code{1L}.
+#' @param legend_title Optional legend title. Defaults to \code{"m/s"}.
+#' @param colours Colour ramp for cell values.
+#'
+#' @return A \code{ggplot} object.
+#'
+#' @seealso [hm_simulate_copula()], [hm_simulate_sf_kle()],
+#'   [hm_plot_exceedance()]
+#'
+#' @examples
+#' \dontrun{
+#' X_land    <- hm_filter_land_cells(X)
+#' fits      <- hm_fit_marginals(X_land)
+#' pit       <- hm_pit_transform(X_land, fits)
+#' cop       <- hm_fit_copula(pit$U, type = "cvine")
+#' scenarios <- hm_simulate_copula(cop, fits, n_scenarios = 100)
+#'
+#' hm_plot_scenario(scenarios, attr(X_land, "coords"), scenario_id = 1L)
+#' }
+#'
+#' @export
+hm_plot_scenario <- function(scenarios, coords, scenario_id = 1L,
+                              title = NULL, show_map = TRUE,
+                              legend_title = "m/s",
+                              colours = c("white", "#7BAFD4",
+                                          "#2166AC", "#1A1A2E"),
+                              coord = "fixed") {
+
+  if (!requireNamespace("ggplot2", quietly = TRUE))
+    stop("Package `ggplot2` is required.")
+  if (!is.matrix(scenarios) || !is.numeric(scenarios))
+    stop("`scenarios` must be a numeric matrix from `hm_simulate_copula()` ",
+         "or `hm_simulate_sf_kle()`.")
+  if (!is.data.frame(coords))
+    stop("`coords` must be a data.frame with `lat` and `lon` columns.")
+  if (!all(c("lat", "lon") %in% names(coords)))
+    stop("`coords` must contain `lat` and `lon` columns.")
+  if (ncol(scenarios) != nrow(coords))
+    stop("`ncol(scenarios)` (", ncol(scenarios), ") must equal ",
+         "`nrow(coords)` (", nrow(coords), ").")
+  if (!is.numeric(scenario_id) || length(scenario_id) != 1L ||
+      scenario_id < 1L || scenario_id > nrow(scenarios))
+    stop("`scenario_id` must be between 1 and nrow(scenarios) = ",
+         nrow(scenarios), ".")
+
+  scenario_id <- as.integer(scenario_id)
+
+  if (is.null(title))
+    title <- paste0("Scenario ", scenario_id)
+
+  coords$exceedance_count     <- scenarios[scenario_id, ]
+  coords$exceedance_frequency <- scenarios[scenario_id, ]
+
+  bbox       <- .hm_validate_bbox(NULL, coords)
+  is_rotated <- all(c("rlon", "rlat") %in% names(coords))
+
+  cells <- if (is_rotated) {
+    .hm_exceedance_rotated_polygons(coords, bbox = bbox, metric = "count")
+  } else {
+    .hm_exceedance_regular_polygons(coords, bbox = bbox, metric = "count")
+  }
+
+  names(cells)[names(cells) == "exceedance_value"] <- "scenario_value"
+
+  plot_bbox <- .hm_exceedance_union_bbox(
+    bbox, .hm_exceedance_polygon_bbox(cells)
+  )
+
+  p <- .hm_base_domain_plot(plot_bbox, show_map = show_map)
+  p <- p + ggplot2::geom_polygon(
+    data   = cells,
+    ggplot2::aes(x = lon, y = lat, group = poly_id, fill = scenario_value),
+    colour    = "grey80",
+    linewidth = 0.1
+  ) +
+    ggplot2::scale_fill_gradientn(
+      colours  = colours,
+      name     = legend_title,
+      na.value = "grey85"
+    )
+
+  if (isTRUE(show_map) && requireNamespace("maps", quietly = TRUE))
+    p <- p + ggplot2::borders(database = "world", fill = NA,
+                               colour = "black", linewidth = 0.25)
+
+  .hm_format_domain_plot(p, bbox = plot_bbox, title = title, coord = coord)
+}
