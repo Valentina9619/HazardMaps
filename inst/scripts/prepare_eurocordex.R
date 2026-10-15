@@ -1,4 +1,3 @@
-# prepare_eurocordex.R
 # Merge and clip EURO-CORDEX historical wind-gust files downloaded from the
 # ESGF portal into a single NetCDF ready for hm_read_netcdf().
 #
@@ -11,13 +10,13 @@
 
 library(ncdf4)
 
-# --- configuration -----------------------------------------------------------
+# Configuration -----------------------------------------------------------
 HISTORICAL_DIR <- "historical"       # folder containing the raw 5-year files
 OUTPUT_DIR     <- "eurocordex_prepared"
 
 LAT_MIN <- 43.7;  LAT_MAX <- 47.2   # Northeast Italy bounding box
 LON_MIN <- 6.5;   LON_MAX <- 14.2
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 dir.create(OUTPUT_DIR, showWarnings = FALSE)
 

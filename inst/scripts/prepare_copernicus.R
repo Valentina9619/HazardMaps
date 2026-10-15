@@ -1,4 +1,3 @@
-# prepare_copernicus.R
 # Download ERA5 daily-maximum wind-gust files from Copernicus CDS and merge
 # them into a single NetCDF ready for hm_read_netcdf().
 #
@@ -11,12 +10,12 @@
 library(ecmwfr)
 library(ncdf4)
 
-# --- configuration -----------------------------------------------------------
+# Configuration -----------------------------------------------------------
 YEARS        <- 1994:2021
 AREA         <- c(47.25, 10.75, 43.75, 14.25)  # N / W / S / E bounding box
 DOWNLOAD_DIR <- "era5_monthly"
 OUTPUT_FILE  <- "Copernicus_dailymax_1994_2021.nc"
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------------
 
 dir.create(DOWNLOAD_DIR, showWarnings = FALSE)
 
