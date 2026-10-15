@@ -1,6 +1,6 @@
 # prepare_copernicus.R
-# Download and merge ERA5 daily-maximum wind-gust files from Copernicus CDS.
-# Output: one NetCDF ready for hm_read_netcdf(file, var = "i10fg")
+# Download ERA5 daily-maximum wind-gust files from Copernicus CDS and merge
+# them into a single NetCDF ready for hm_read_netcdf().
 #
 # Requirements: ecmwfr, ncdf4
 #   install.packages(c("ecmwfr", "ncdf4"))
@@ -12,13 +12,14 @@ library(ecmwfr)
 library(ncdf4)
 
 # --- configuration -----------------------------------------------------------
-YEARS       <- 1994:2021
-AREA        <- c(47.25, 10.75, 43.75, 14.25)  # N / W / S / E
+YEARS        <- 1994:2021
+AREA         <- c(47.25, 10.75, 43.75, 14.25)  # N / W / S / E bounding box
 DOWNLOAD_DIR <- "era5_monthly"
 OUTPUT_FILE  <- "Copernicus_dailymax_1994_2021.nc"
 # -----------------------------------------------------------------------------
 
 dir.create(DOWNLOAD_DIR, showWarnings = FALSE)
+
 
 download_month <- function(year, month) {
   out <- file.path(DOWNLOAD_DIR, sprintf("era5_%d_%02d.nc", year, month))
@@ -45,44 +46,46 @@ download_month <- function(year, month) {
   out
 }
 
-# Download
+
+# Download one file per month (skips files already on disk)
 files <- mapply(download_month,
                 rep(YEARS, each = 12),
                 rep(1:12,  times = length(YEARS)))
 
-# Merge along the time dimension using CDO if available, else ncdf4
-if (nchar(Sys.which("cdo")) > 0) {
-  system(paste("cdo mergetime", paste(files, collapse = " "), OUTPUT_FILE))
-} else {
-  # Manual merge with ncdf4
-  datasets <- lapply(files, function(f) {
-    nc  <- nc_open(f)
-    on.exit(nc_close(nc))
-    list(
-      time = ncvar_get(nc, "time"),
-      data = ncvar_get(nc, "i10fg"),
-      lon  = ncvar_get(nc, "longitude"),
-      lat  = ncvar_get(nc, "latitude"),
-      tunits = ncatt_get(nc, "time", "units")$value
-    )
-  })
+# Merge all monthly files into one NetCDF along the time dimension
+message("Merging ", length(files), " monthly files ...")
 
-  lon  <- datasets[[1]]$lon
-  lat  <- datasets[[1]]$lat
-  time <- do.call(c, lapply(datasets, `[[`, "time"))
-  data <- do.call(abind_time <- function(a, b) abind::abind(a, b, along = 3),
-                  lapply(datasets, `[[`, "data"))
+nc1    <- nc_open(files[[1]])
+lon    <- ncvar_get(nc1, "longitude")
+lat    <- ncvar_get(nc1, "latitude")
+tunits <- ncatt_get(nc1, "time", "units")$value
+nc_close(nc1)
 
-  d_lon  <- ncdim_def("longitude", "degrees_east",  lon)
-  d_lat  <- ncdim_def("latitude",  "degrees_north", lat)
-  d_time <- ncdim_def("time", datasets[[1]]$tunits,  time, unlim = TRUE)
-  v_wind <- ncvar_def("i10fg", "m s-1", list(d_lon, d_lat, d_time),
-                      missval = 1e20, longname = "Daily maximum wind gust")
+all_time <- unlist(lapply(files, function(f) {
+  nc <- nc_open(f); on.exit(nc_close(nc))
+  ncvar_get(nc, "time")
+}))
 
-  nc_out <- nc_create(OUTPUT_FILE, v_wind)
-  ncvar_put(nc_out, v_wind, data)
-  nc_close(nc_out)
+d_lon  <- ncdim_def("longitude", "degrees_east",  lon)
+d_lat  <- ncdim_def("latitude",  "degrees_north", lat)
+d_time <- ncdim_def("time", tunits, all_time, unlim = TRUE)
+v_wind <- ncvar_def("i10fg", "m s-1", list(d_lon, d_lat, d_time),
+                    missval = 1e20, longname = "Daily maximum wind gust")
+
+nc_out <- nc_create(OUTPUT_FILE, v_wind)
+
+t_start <- 1L
+for (f in files) {
+  nc   <- nc_open(f)
+  dat  <- ncvar_get(nc, "i10fg")
+  nt   <- dim(dat)[3]
+  ncvar_put(nc_out, v_wind, dat,
+            start = c(1L, 1L, t_start),
+            count = c(-1L, -1L, nt))
+  t_start <- t_start + nt
+  nc_close(nc)
 }
 
+nc_close(nc_out)
 message("Saved: ", OUTPUT_FILE)
 message("Ready for: hm_read_netcdf('", OUTPUT_FILE, "', var = 'i10fg')")
