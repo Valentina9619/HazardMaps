@@ -6,7 +6,7 @@ test_that("EURO-CORDEX wsgsmax NetCDF ingests with 2D lat/lon", {
   expect_true(file.exists(f))
 
   x <- hm_read_netcdf(f, var = "wsgsmax")
-  expect_equal(x$meta$grid_type, "rotated")
+  expect_identical(x$meta$grid_type, "rotated")
 
   x <- hm_standardize_coords(x)
   x <- hm_decode_time(x)
@@ -20,8 +20,8 @@ test_that("EURO-CORDEX wsgsmax NetCDF ingests with 2D lat/lon", {
   expect_true(all(c("cell_id", "lat", "lon") %in% names(coords)))
 
   if (all(c("rlat", "rlon") %in% names(coords))) {
-    expect_true(is.numeric(coords$rlat))
-    expect_true(is.numeric(coords$rlon))
+    expect_type(coords$rlat, "double")
+    expect_type(coords$rlon, "double")
   }
 })
 
@@ -34,7 +34,7 @@ test_that("EURO-CORDEX spatial domain can be plotted", {
   expect_true(file.exists(f))
 
   x <- hm_read_netcdf(f, var = "wsgsmax")
-  expect_equal(x$meta$grid_type, "rotated")
+  expect_identical(x$meta$grid_type, "rotated")
 
   x <- hm_standardize_coords(x)
 
@@ -45,7 +45,7 @@ test_that("EURO-CORDEX spatial domain can be plotted", {
                                title    = "EURO-CORDEX domain",
                                show_map = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -68,7 +68,7 @@ test_that("EURO-CORDEX exceedance count can be plotted", {
                            title     = "Wind-gust exceedance count",
                            show_map  = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -82,14 +82,16 @@ test_that("EURO-CORDEX exceedance time plot works", {
   x <- hm_read_netcdf(f, var = "wsgsmax")
   x <- hm_standardize_coords(x)
 
-  p_2y <- hm_plot_exceedance_time(x, threshold = 25, by = "2_years",
-                                   title = "EURO-CORDEX extreme-event days by 2-year period")
+  p_2y <- hm_plot_exceedance_time(
+    x, threshold = 25, by = "2_years",
+    title = "EURO-CORDEX extreme-event days by 2-year period")
 
-  p_decade <- hm_plot_exceedance_time(x, threshold = 25, by = "decade",
-                                       title = "EURO-CORDEX extreme-event days by decade")
+  p_decade <- hm_plot_exceedance_time(
+    x, threshold = 25, by = "decade",
+    title = "EURO-CORDEX extreme-event days by decade")
 
-  expect_true(inherits(p_2y,     "ggplot"))
-  expect_true(inherits(p_decade, "ggplot"))
+  expect_s3_class(p_2y,     "ggplot")
+  expect_s3_class(p_decade, "ggplot")
 })
 
 
@@ -140,7 +142,7 @@ test_that("EURO-CORDEX goodness-of-fit diagnostic works", {
   fitted_cell <- which(!is.na(fits$best_dist))[1L]
   gof <- hm_marginal_gof(X, fits, cell_id = fitted_cell)
 
-  expect_true(is.list(gof))
+  expect_type(gof, "list")
   expect_true(all(c("cell_id", "dist", "params",
                     "ks_statistic", "ks_pvalue", "qq",
                     "n_obs") %in% names(gof)))
@@ -153,7 +155,7 @@ test_that("EURO-CORDEX goodness-of-fit diagnostic works", {
 })
 
 
-test_that("EURO-CORDEX PIT transform produces valid uniform and Gaussian matrices", {
+test_that("EURO-CORDEX PIT transform produces valid uniform and Gaussian", {
   f <- system.file("extdata", "EuroCordex_wsgsmax_1970_2005.nc",
                    package = "HazardMaps")
 
@@ -169,7 +171,7 @@ test_that("EURO-CORDEX PIT transform produces valid uniform and Gaussian matrice
   fits <- hm_fit_marginals(X)
   pit  <- hm_pit_transform(X, fits)
 
-  expect_true(is.list(pit))
+  expect_type(pit, "list")
   expect_true(all(c("U", "Z", "n_cells_ok", "n_cells_skipped") %in% names(pit)))
 
   expect_equal(dim(pit$U), dim(X))
@@ -201,7 +203,7 @@ test_that("EURO-CORDEX best-fit distribution map can be plotted", {
 
   p <- hm_plot_best_dist(x_ext, fits, show_map = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -243,7 +245,7 @@ test_that("EURO-CORDEX distribution frequency chart can be plotted", {
 
   p <- hm_plot_dist_frequency(fits)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -404,7 +406,7 @@ test_that("EURO-CORDEX correlogram can be plotted", {
   p <- hm_plot_correlogram(corg,
          title = "Empirical correlogram — EURO-CORDEX wind gust")
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -432,7 +434,7 @@ test_that("EURO-CORDEX C-vine copula can be fitted and simulated", {
   cop <- hm_fit_copula(U_small, type = "cvine")
 
   expect_s3_class(cop, "hm_copula")
-  expect_equal(cop$type,    "cvine")
+  expect_identical(cop$type,    "cvine")
   expect_equal(cop$n_cells, 10L)
 
   scenarios <- hm_simulate_copula(cop, fits_small,
@@ -441,7 +443,7 @@ test_that("EURO-CORDEX C-vine copula can be fitted and simulated", {
   expect_true(is.matrix(scenarios))
   expect_equal(dim(scenarios), c(50L, 10L))
   expect_true(all(scenarios >= 0, na.rm = TRUE))
-  expect_equal(attr(scenarios, "type"), "cvine")
+  expect_identical(attr(scenarios, "type"), "cvine")
 })
 
 
@@ -469,7 +471,7 @@ test_that("EURO-CORDEX Gaussian copula can be fitted and simulated", {
   cop <- hm_fit_copula(U_small, type = "gaussian")
 
   expect_s3_class(cop, "hm_copula")
-  expect_equal(cop$type,    "gaussian")
+  expect_identical(cop$type,    "gaussian")
 
   scenarios <- hm_simulate_copula(cop, fits_small,
                                    n_scenarios = 50L, seed = 1L)

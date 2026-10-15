@@ -6,7 +6,7 @@ test_that("Copernicus dailymax NetCDF ingests with 1D lat/lon", {
   expect_true(file.exists(f))
 
   x <- hm_read_netcdf(f, var = "i10fg")
-  expect_equal(x$meta$grid_type, "regular")
+  expect_identical(x$meta$grid_type, "regular")
 
   x <- hm_standardize_coords(x)
   x <- hm_decode_time(x)
@@ -29,7 +29,7 @@ test_that("Copernicus dailymax spatial domain can be plotted", {
   expect_true(file.exists(f))
 
   x <- hm_read_netcdf(f, var = "i10fg")
-  expect_equal(x$meta$grid_type, "regular")
+  expect_identical(x$meta$grid_type, "regular")
 
   x <- hm_standardize_coords(x)
 
@@ -40,7 +40,7 @@ test_that("Copernicus dailymax spatial domain can be plotted", {
                                title    = "Copernicus domain",
                                show_map = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -63,7 +63,7 @@ test_that("Copernicus exceedance count can be plotted", {
                            title      = "Wind-gust exceedance count",
                            show_map   = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -77,18 +77,16 @@ test_that("Copernicus exceedance time plot works", {
   x <- hm_read_netcdf(f, var = "i10fg")
   x <- hm_standardize_coords(x)
 
-  p_year <- hm_plot_exceedance_time(x,
-                                     threshold = 25,
-                                     by        = "year",
-                                     title     = "Copernicus extreme-event days by year")
+  p_year <- hm_plot_exceedance_time(
+    x, threshold = 25, by = "year",
+    title = "Copernicus extreme-event days by year")
 
-  p_5y <- hm_plot_exceedance_time(x,
-                                   threshold = 25,
-                                   by        = "5_years",
-                                   title     = "Copernicus extreme-event days by 5-year period")
+  p_5y <- hm_plot_exceedance_time(
+    x, threshold = 25, by = "5_years",
+    title = "Copernicus extreme-event days by 5-year period")
 
-  expect_true(inherits(p_year, "ggplot"))
-  expect_true(inherits(p_5y,   "ggplot"))
+  expect_s3_class(p_year, "ggplot")
+  expect_s3_class(p_5y,   "ggplot")
 })
 
 
@@ -188,7 +186,7 @@ test_that("Copernicus goodness-of-fit diagnostic works", {
   fits <- hm_fit_marginals(X)
   gof  <- hm_marginal_gof(X, fits, cell_id = 1L)
 
-  expect_true(is.list(gof))
+  expect_type(gof, "list")
   expect_true(all(c("cell_id", "dist", "params",
                     "ks_statistic", "ks_pvalue", "qq",
                     "n_obs") %in% names(gof)))
@@ -202,7 +200,7 @@ test_that("Copernicus goodness-of-fit diagnostic works", {
 })
 
 
-test_that("Copernicus PIT transform produces valid uniform and Gaussian matrices", {
+test_that("Copernicus PIT transform produces valid uniform and Gaussian", {
   f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
                    package = "HazardMaps")
 
@@ -218,7 +216,7 @@ test_that("Copernicus PIT transform produces valid uniform and Gaussian matrices
   fits <- hm_fit_marginals(X)
   pit  <- hm_pit_transform(X, fits)
 
-  expect_true(is.list(pit))
+  expect_type(pit, "list")
   expect_true(all(c("U", "Z", "n_cells_ok", "n_cells_skipped") %in% names(pit)))
 
   expect_equal(dim(pit$U), dim(X))
@@ -249,7 +247,7 @@ test_that("Copernicus best-fit distribution map can be plotted", {
 
   p <- hm_plot_best_dist(x_ext, fits, show_map = FALSE)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -291,7 +289,7 @@ test_that("Copernicus distribution frequency chart can be plotted", {
 
   p <- hm_plot_dist_frequency(fits)
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -453,7 +451,7 @@ test_that("Copernicus correlogram can be plotted", {
   p <- hm_plot_correlogram(corg,
          title = "Empirical correlogram — Copernicus wind gust")
 
-  expect_true(inherits(p, "ggplot"))
+  expect_s3_class(p, "ggplot")
 })
 
 
@@ -480,7 +478,7 @@ test_that("Copernicus C-vine copula can be fitted and simulated", {
   cop <- hm_fit_copula(U_small, type = "cvine")
 
   expect_s3_class(cop, "hm_copula")
-  expect_equal(cop$type,    "cvine")
+  expect_identical(cop$type,    "cvine")
   expect_equal(cop$n_cells, 10L)
   expect_equal(cop$n_obs,   nrow(U_small))
 
@@ -490,7 +488,7 @@ test_that("Copernicus C-vine copula can be fitted and simulated", {
   expect_true(is.matrix(scenarios))
   expect_equal(dim(scenarios), c(50L, 10L))
   expect_true(all(scenarios >= 0, na.rm = TRUE))
-  expect_equal(attr(scenarios, "type"), "cvine")
+  expect_identical(attr(scenarios, "type"), "cvine")
 })
 
 
@@ -517,7 +515,7 @@ test_that("Copernicus D-vine copula can be fitted and simulated", {
   cop <- hm_fit_copula(U_small, type = "dvine")
 
   expect_s3_class(cop, "hm_copula")
-  expect_equal(cop$type,    "dvine")
+  expect_identical(cop$type,    "dvine")
   expect_equal(cop$n_cells, 10L)
 
   scenarios <- hm_simulate_copula(cop, fits_small,
@@ -526,7 +524,7 @@ test_that("Copernicus D-vine copula can be fitted and simulated", {
   expect_true(is.matrix(scenarios))
   expect_equal(dim(scenarios), c(50L, 10L))
   expect_true(all(scenarios >= 0, na.rm = TRUE))
-  expect_equal(attr(scenarios, "type"), "dvine")
+  expect_identical(attr(scenarios, "type"), "dvine")
 })
 
 
@@ -553,7 +551,7 @@ test_that("Copernicus Gaussian copula can be fitted and simulated", {
   cop <- hm_fit_copula(U_small, type = "gaussian")
 
   expect_s3_class(cop, "hm_copula")
-  expect_equal(cop$type,    "gaussian")
+  expect_identical(cop$type,    "gaussian")
   expect_equal(cop$n_cells, 10L)
 
   R <- cop$model$R
@@ -566,7 +564,7 @@ test_that("Copernicus Gaussian copula can be fitted and simulated", {
   expect_true(is.matrix(scenarios))
   expect_equal(dim(scenarios), c(50L, 10L))
   expect_true(all(scenarios >= 0, na.rm = TRUE))
-  expect_equal(attr(scenarios, "type"), "gaussian")
+  expect_identical(attr(scenarios, "type"), "gaussian")
 })
 
 
@@ -593,7 +591,7 @@ test_that("Copernicus spatial correlation model can be fitted", {
   model <- hm_fit_correlation_model(corg)
 
   expect_s3_class(model, "hm_corrmodel")
-  expect_true(!is.null(model$best_family))
+  expect_false(is.null(model$best_family))
   expect_true(model$best_family %in%
                 c("matern", "exponential", "gaussian", "spherical"))
   expect_true(all(is.finite(model$best_params)))
@@ -635,8 +633,8 @@ test_that("Copernicus KLE scenarios have correct structure and range", {
   expect_equal(dim(scenarios), c(50L, 20L))
   expect_true(all(scenarios > 0, na.rm = TRUE))
 
-  expect_true(!is.null(attr(scenarios, "k_modes")))
-  expect_true(!is.null(attr(scenarios, "var_explained")))
+  expect_false(is.null(attr(scenarios, "k_modes")))
+  expect_false(is.null(attr(scenarios, "var_explained")))
   expect_lte(attr(scenarios, "k_modes"), 20L)
   expect_gte(attr(scenarios, "var_explained"), 0.95)
 })
