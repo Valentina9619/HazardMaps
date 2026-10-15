@@ -29,10 +29,8 @@ hm_plot_best_dist(
 
 - bbox:
 
-  Optional named numeric vector with \`lon_min\`, \`lon_max\`,
-  \`lat_min\`, and \`lat_max\` to control the plot extent. If \`NULL\`
-  (default), the extent is derived from the coordinate table with a
-  small padding so edge points are not clipped.
+  Optional named numeric vector with `lon_min`, `lon_max`, `lat_min`,
+  `lat_max`.
 
 - title:
 
@@ -40,7 +38,7 @@ hm_plot_best_dist(
 
 - show_map:
 
-  Logical. If \`TRUE\`, adds a world map background.
+  Logical. Add world map background (requires `maps`).
 
 - palette:
 

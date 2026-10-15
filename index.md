@@ -1,10 +1,13 @@
 # HazardMaps
 
+[![R-CMD-check](https://github.com/Valentina9619/HazardMaps/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Valentina9619/HazardMaps/actions)
+[![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://valentina9619.github.io/HazardMaps/)
+
 ![HazardMaps logo](reference/figures/logo.png)
 
 HazardMaps is an R package for reproducible spatial dependence analysis
-of natural hazards. It provides a unified workflow to ingest gridded
-climate datasets, fit and compare spatial dependence models, and
+of natural hazards. It provides a unified workflow to read and prepare
+gridded climate datasets, fit and compare spatial dependence models, and
 generate spatially coherent pseudoscenarios for uncertainty
 quantification.
 
@@ -25,7 +28,7 @@ remotes::install_github("Valentina9619/HazardMaps")
 
 library(HazardMaps)
 
-# 1. Ingest
+# 1. Read and prepare data
 x <- hm_read_netcdf("Copernicus_dailymax.nc", var = "i10fg")
 x <- hm_standardize_coords(x)
 x <- hm_decode_time(x)
@@ -57,13 +60,13 @@ scenarios <- hm_simulate_sf_kle(model, D, fits, n_scenarios = 1000)
 
 | Module | Functions |
 |----|----|
-| Data ingest | `hm_read_netcdf`, `hm_standardize_coords`, `hm_decode_time`, `hm_to_matrix`, `hm_filter_land_cells` |
+| Data preparation | `hm_read_netcdf`, `hm_standardize_coords`, `hm_decode_time`, `hm_to_matrix`, `hm_filter_land_cells` |
 | Event selection | `hm_select_extreme_events`, `hm_summarise_events` |
 | Marginals | `hm_fit_marginals`, `hm_marginal_gof`, `hm_pit_transform` |
 | Dependence | `hm_distance_matrix`, `hm_empirical_kendall`, `hm_empirical_correlogram`, `hm_cluster_size` |
 | Copulas | `hm_fit_copula`, `hm_simulate_copula` |
 | Stochastic fields | `hm_fit_correlation_model`, `hm_simulate_sf_kle` |
-| Visualization | `hm_plot_spatial_domain`, `hm_plot_exceedance`, `hm_plot_best_dist`, `hm_plot_correlogram` |
+| Visualization | `hm_plot_spatial_domain`, `hm_plot_exceedance`, `hm_plot_best_dist`, `hm_plot_correlogram`, `hm_plot_scenario` |
 
 ## References
 
@@ -78,3 +81,10 @@ Inoperability assessment of interdependent critical infrastructures
 exposed to natural hazards considering climate change. *International
 Journal of Disaster Risk Reduction*, 141, 106172. DOI:
 10.1016/j.ijdrr.2026.106172
+
+## Code of Conduct
+
+Please note that the HazardMaps project is released with a [Contributor
+Code of
+Conduct](https://valentina9619.github.io/HazardMaps/CODE_OF_CONDUCT.html).
+By contributing to this project, you agree to abide by its terms.

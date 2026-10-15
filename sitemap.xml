@@ -1,5 +1,7 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://valentina9619.github.io/HazardMaps/404.html</loc></url>
+<url><loc>https://valentina9619.github.io/HazardMaps/CODE_OF_CONDUCT.html</loc></url>
+<url><loc>https://valentina9619.github.io/HazardMaps/CONTRIBUTING.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/LICENSE-text.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/LICENSE.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/articles/index.html</loc></url>
@@ -24,6 +26,7 @@
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_plot_exceedance.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_plot_exceedance_time.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_plot_marginal_fit.html</loc></url>
+<url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_plot_scenario.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_plot_spatial_domain.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_read_netcdf.html</loc></url>
 <url><loc>https://valentina9619.github.io/HazardMaps/reference/hm_select_extreme_events.html</loc></url>

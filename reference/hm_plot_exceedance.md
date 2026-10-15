@@ -55,7 +55,7 @@ hm_plot_exceedance(
 
 - show_map:
 
-  Logical. Add world map background.
+  Logical. Add world map background (requires `maps`).
 
 - show_grid:
 

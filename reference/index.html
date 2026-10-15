@@ -34,9 +34,9 @@
     </div>
 
     <div class="section level2">
-      <h2 id="all-functions">All functions<a class="anchor" aria-label="anchor" href="#all-functions"></a></h2>
+      <h2 id="data-preparation">Data preparation<a class="anchor" aria-label="anchor" href="#data-preparation"></a></h2>
 
-
+      <div class="section-desc"><p>Read, standardize, and reshape gridded NetCDF datasets.</p></div>
 
       <dl></dl></div><div class="section level2">
 
@@ -45,10 +45,24 @@
 
       <dl><dt>
 
-          <code><a href="hm_cluster_size.html">hm_cluster_size()</a></code>
+          <code><a href="hm_read_netcdf.html">hm_read_netcdf()</a></code>
 
         </dt>
-        <dd>Compute spatial cluster sizes of extreme events</dd>
+        <dd>Read a hazard NetCDF dataset</dd>
+
+        <dt>
+
+          <code><a href="hm_standardize_coords.html">hm_standardize_coords()</a></code>
+
+        </dt>
+        <dd>Standardize spatial coordinates</dd>
+
+        <dt>
+
+          <code><a href="hm_get_grid_geometry.html">hm_get_grid_geometry()</a></code>
+
+        </dt>
+        <dd>Extract grid geometry</dd>
 
         <dt>
 
@@ -59,24 +73,10 @@
 
         <dt>
 
-          <code><a href="hm_distance_matrix.html">hm_distance_matrix()</a></code>
+          <code><a href="hm_to_matrix.html">hm_to_matrix()</a></code>
 
         </dt>
-        <dd>Compute pairwise haversine distances between grid cells</dd>
-
-        <dt>
-
-          <code><a href="hm_empirical_correlogram.html">hm_empirical_correlogram()</a></code>
-
-        </dt>
-        <dd>Compute the empirical spatial correlogram</dd>
-
-        <dt>
-
-          <code><a href="hm_empirical_kendall.html">hm_empirical_kendall()</a></code>
-
-        </dt>
-        <dd>Compute the empirical pairwise Kendall correlation matrix</dd>
+        <dd>Convert hazard array to a time-by-cell matrix</dd>
 
         <dt>
 
@@ -84,34 +84,45 @@
 
         </dt>
         <dd>Remove sea and no-data cells from a hazard matrix</dd>
+      </dl></div><div class="section level2">
+      <h2 id="event-selection">Event selection<a class="anchor" aria-label="anchor" href="#event-selection"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Filter extreme-event days and summarise their properties.</p></div>
 
-          <code><a href="hm_fit_copula.html">hm_fit_copula()</a></code>
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hm_select_extreme_events.html">hm_select_extreme_events()</a></code>
 
         </dt>
-        <dd>Fit a spatial copula model to the uniform PIT data</dd>
+        <dd>Select extreme-event days by threshold</dd>
 
         <dt>
 
-          <code><a href="hm_fit_correlation_model.html">hm_fit_correlation_model()</a></code>
+          <code><a href="hm_summarise_events.html">hm_summarise_events()</a></code>
 
         </dt>
-        <dd>Fit a parametric spatial correlation model to the empirical correlogram</dd>
+        <dd>Summarise retained extreme-event days</dd>
+      </dl></div><div class="section level2">
+      <h2 id="marginal-distributions">Marginal distributions<a class="anchor" aria-label="anchor" href="#marginal-distributions"></a></h2>
 
-        <dt>
+      <div class="section-desc"><p>Fit, diagnose, and transform marginal distributions at each grid cell.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
 
           <code><a href="hm_fit_marginals.html">hm_fit_marginals()</a></code>
 
         </dt>
         <dd>Fit marginal distributions to each grid cell</dd>
-
-        <dt>
-
-          <code><a href="hm_get_grid_geometry.html">hm_get_grid_geometry()</a></code>
-
-        </dt>
-        <dd>Extract grid geometry</dd>
 
         <dt>
 
@@ -126,27 +137,105 @@
 
         </dt>
         <dd>Apply the Probability Integral Transform</dd>
+      </dl></div><div class="section level2">
+      <h2 id="spatial-dependence">Spatial dependence<a class="anchor" aria-label="anchor" href="#spatial-dependence"></a></h2>
+
+      <div class="section-desc"><p>Estimate empirical spatial correlation and cluster-size statistics.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hm_distance_matrix.html">hm_distance_matrix()</a></code>
+
+        </dt>
+        <dd>Compute pairwise haversine distances between grid cells</dd>
 
         <dt>
 
-          <code><a href="hm_plot_best_dist.html">hm_plot_best_dist()</a></code>
+          <code><a href="hm_empirical_kendall.html">hm_empirical_kendall()</a></code>
 
         </dt>
-        <dd>Plot best-fitting marginal distribution by grid cell</dd>
+        <dd>Compute the empirical pairwise Kendall correlation matrix</dd>
 
         <dt>
 
-          <code><a href="hm_plot_correlogram.html">hm_plot_correlogram()</a></code>
+          <code><a href="hm_empirical_correlogram.html">hm_empirical_correlogram()</a></code>
 
         </dt>
-        <dd>Plot the empirical spatial correlogram</dd>
+        <dd>Compute the empirical spatial correlogram</dd>
 
         <dt>
 
-          <code><a href="hm_plot_dist_frequency.html">hm_plot_dist_frequency()</a></code>
+          <code><a href="hm_cluster_size.html">hm_cluster_size()</a></code>
 
         </dt>
-        <dd>Plot frequency of best-fitting marginal distribution families</dd>
+        <dd>Compute spatial cluster sizes of extreme events</dd>
+      </dl></div><div class="section level2">
+      <h2 id="copula-models">Copula models<a class="anchor" aria-label="anchor" href="#copula-models"></a></h2>
+
+      <div class="section-desc"><p>Fit vine and Gaussian copulas and simulate pseudoscenarios.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hm_fit_copula.html">hm_fit_copula()</a></code>
+
+        </dt>
+        <dd>Fit a spatial copula model to the uniform PIT data</dd>
+
+        <dt>
+
+          <code><a href="hm_simulate_copula.html">hm_simulate_copula()</a></code>
+
+        </dt>
+        <dd>Simulate spatially coherent hazard scenarios from a fitted copula</dd>
+      </dl></div><div class="section level2">
+      <h2 id="stochastic-field-models">Stochastic field models<a class="anchor" aria-label="anchor" href="#stochastic-field-models"></a></h2>
+
+      <div class="section-desc"><p>Fit parametric covariance models and simulate via KLE.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hm_fit_correlation_model.html">hm_fit_correlation_model()</a></code>
+
+        </dt>
+        <dd>Fit a parametric spatial correlation model to the empirical correlogram</dd>
+
+        <dt>
+
+          <code><a href="hm_simulate_sf_kle.html">hm_simulate_sf_kle()</a></code>
+
+        </dt>
+        <dd>Simulate hazard scenarios via Karhunen-Loève Expansion</dd>
+      </dl></div><div class="section level2">
+      <h2 id="visualization">Visualization<a class="anchor" aria-label="anchor" href="#visualization"></a></h2>
+
+      <div class="section-desc"><p>Plot spatial domains, exceedances, marginals, correlograms, and scenarios.</p></div>
+
+      <dl></dl></div><div class="section level2">
+
+
+
+
+      <dl><dt>
+
+          <code><a href="hm_plot_spatial_domain.html">hm_plot_spatial_domain()</a></code>
+
+        </dt>
+        <dd>Plot spatial domain grid</dd>
 
         <dt>
 
@@ -164,6 +253,13 @@
 
         <dt>
 
+          <code><a href="hm_plot_best_dist.html">hm_plot_best_dist()</a></code>
+
+        </dt>
+        <dd>Plot best-fitting marginal distribution by grid cell</dd>
+
+        <dt>
+
           <code><a href="hm_plot_marginal_fit.html">hm_plot_marginal_fit()</a></code>
 
         </dt>
@@ -171,61 +267,27 @@
 
         <dt>
 
-          <code><a href="hm_plot_spatial_domain.html">hm_plot_spatial_domain()</a></code>
+          <code><a href="hm_plot_dist_frequency.html">hm_plot_dist_frequency()</a></code>
 
         </dt>
-        <dd>Plot spatial domain grid</dd>
+        <dd>Plot frequency of best-fitting marginal distribution families</dd>
 
         <dt>
 
-          <code><a href="hm_read_netcdf.html">hm_read_netcdf()</a></code>
+          <code><a href="hm_plot_correlogram.html">hm_plot_correlogram()</a></code>
 
         </dt>
-        <dd>Read a hazard NetCDF dataset</dd>
+        <dd>Plot the empirical spatial correlogram</dd>
 
         <dt>
 
-          <code><a href="hm_select_extreme_events.html">hm_select_extreme_events()</a></code>
+          <code><a href="hm_plot_scenario.html">hm_plot_scenario()</a></code>
 
         </dt>
-        <dd>Select extreme-event days by threshold</dd>
-
-        <dt>
-
-          <code><a href="hm_simulate_copula.html">hm_simulate_copula()</a></code>
-
-        </dt>
-        <dd>Simulate spatially coherent hazard scenarios from a fitted copula</dd>
-
-        <dt>
-
-          <code><a href="hm_simulate_sf_kle.html">hm_simulate_sf_kle()</a></code>
-
-        </dt>
-        <dd>Simulate hazard scenarios via Karhunen-Loève Expansion</dd>
-
-        <dt>
-
-          <code><a href="hm_standardize_coords.html">hm_standardize_coords()</a></code>
-
-        </dt>
-        <dd>Standardize spatial coordinates</dd>
-
-        <dt>
-
-          <code><a href="hm_summarise_events.html">hm_summarise_events()</a></code>
-
-        </dt>
-        <dd>Summarise retained extreme-event days</dd>
-
-        <dt>
-
-          <code><a href="hm_to_matrix.html">hm_to_matrix()</a></code>
-
-        </dt>
-        <dd>Convert hazard array to a time-by-cell matrix</dd>
+        <dd>Plot one simulated hazard scenario on the spatial grid</dd>
       </dl></div>
-  </main></div>
+  </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
+    </nav></aside></div>
 
 
     <footer><div class="pkgdown-footer-left">

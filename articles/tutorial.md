@@ -502,7 +502,7 @@ cat("KLE modes retained:", attr(scenarios_sf, "k_modes"),
 cat("Value range: [",
     round(min(scenarios_sf, na.rm = TRUE), 2), ",",
     round(max(scenarios_sf, na.rm = TRUE), 2), "] m/s\n")
-#> Value range: [ 0.98 , 43.97 ] m/s
+#> Value range: [ 0.6 , 40.28 ] m/s
 ```
 
 ------------------------------------------------------------------------
@@ -564,8 +564,8 @@ print(footprint_table, row.names = FALSE)
 #>     Observed 8.88      4 138
 #>       C-vine 2.22      0  24
 #>       D-vine 2.41      0  23
-#>     Gaussian 2.49      0  27
-#>  SF (Matérn) 8.39      6  66
+#>     Gaussian 2.46      0  26
+#>  SF (Matérn) 8.41      6  63
 ```
 
 ``` r
