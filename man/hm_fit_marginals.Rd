@@ -28,6 +28,19 @@ Fits candidate parametric distributions to each column of \code{X} by
 maximum likelihood and selects the best fit using AIC or BIC, following
 the methodology in Clavijo Mesa et al. (2026).
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+x_ext <- hm_select_extreme_events(x, threshold = 25)
+X     <- hm_to_matrix(x_ext)
+\dontrun{
+fits <- hm_fit_marginals(X, criterion = "bic")
+table(fits$best_dist)
+}
+}
 \seealso{
 [hm_marginal_gof()], [hm_pit_transform()]
 }

@@ -16,6 +16,12 @@
 #' @return An object of class \code{hm_hazard}.
 #'
 #' @seealso [hm_standardize_coords()], [hm_decode_time()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x$meta$grid_type
 #' @export
 hm_read_netcdf <- function(file, var = NULL) {
 
@@ -100,6 +106,13 @@ hm_read_netcdf <- function(file, var = NULL) {
 #'   containing \code{cell_id}, \code{lat}, and \code{lon}.
 #'
 #' @seealso [hm_read_netcdf()], [hm_get_grid_geometry()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' head(x$coords)
 #' @export
 hm_standardize_coords <- function(x) {
 
@@ -157,6 +170,14 @@ hm_standardize_coords <- function(x) {
 #'   \code{n_cells}, and \code{grid_type}.
 #'
 #' @seealso [hm_standardize_coords()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_get_grid_geometry(x)
+#' x$grid$bbox
 #' @export
 hm_get_grid_geometry <- function(x) {
 
@@ -224,6 +245,13 @@ hm_get_grid_geometry <- function(x) {
 #'   vector (daily data) or \code{POSIXct} vector (sub-daily data).
 #'
 #' @seealso [hm_read_netcdf()], [hm_to_matrix()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_decode_time(x)
+#' head(x$time)
 #' @export
 hm_decode_time <- function(x, tz = "UTC") {
 
@@ -289,6 +317,15 @@ hm_decode_time <- function(x, tz = "UTC") {
 #' @return A numeric matrix with attributes \code{time} and \code{coords}.
 #'
 #' @seealso [hm_decode_time()], [hm_standardize_coords()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' X <- hm_to_matrix(x)
+#' dim(X)
 #' @export
 hm_to_matrix <- function(x) {
 
@@ -343,6 +380,16 @@ hm_to_matrix <- function(x) {
 #'   \code{land_idx}, \code{coords}, and \code{time} are attached.
 #'
 #' @seealso [hm_to_matrix()], [hm_fit_marginals()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' X <- hm_to_matrix(x)
+#' X_land <- hm_filter_land_cells(X)
+#' dim(X_land)
 #' @export
 hm_filter_land_cells <- function(X, min_valid = 0.8) {
 

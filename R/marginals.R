@@ -189,6 +189,19 @@
 #'   [hm_marginal_gof()].
 #'
 #' @seealso [hm_marginal_gof()], [hm_pit_transform()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x_ext <- hm_select_extreme_events(x, threshold = 25)
+#' X     <- hm_to_matrix(x_ext)
+#' \dontrun{
+#' fits <- hm_fit_marginals(X, criterion = "bic")
+#' table(fits$best_dist)
+#' }
 #' @export
 hm_fit_marginals <- function(X,
                               dists     = .hm_supported_dists,
@@ -301,6 +314,20 @@ hm_fit_marginals <- function(X,
 #'   and \code{n_obs}.
 #'
 #' @seealso [hm_fit_marginals()], [hm_pit_transform()]
+#'
+#' @examples
+#' \dontrun{
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x_ext <- hm_select_extreme_events(x, threshold = 25)
+#' X    <- hm_to_matrix(x_ext)
+#' fits <- hm_fit_marginals(X)
+#' gof  <- hm_marginal_gof(X, fits, cell_id = 1L)
+#' gof$ks_statistic
+#' }
 #' @export
 hm_marginal_gof <- function(X, fits, cell_id) {
 
@@ -369,6 +396,20 @@ hm_marginal_gof <- function(X, fits, cell_id) {
 #'   or \code{NULL}), \code{n_cells_ok}, and \code{n_cells_skipped}.
 #'
 #' @seealso [hm_fit_marginals()], [hm_marginal_gof()]
+#'
+#' @examples
+#' \dontrun{
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x_ext <- hm_select_extreme_events(x, threshold = 25)
+#' X    <- hm_to_matrix(x_ext)
+#' fits <- hm_fit_marginals(X)
+#' pit  <- hm_pit_transform(X, fits)
+#' dim(pit$U)
+#' }
 #' @export
 hm_pit_transform <- function(X, fits, gaussian = TRUE) {
 

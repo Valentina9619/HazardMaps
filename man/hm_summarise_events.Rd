@@ -21,6 +21,16 @@ A data.frame with columns \code{date}, \code{n_cells_exceeded},
 Returns a data.frame with one row per time step: date, number of cells
 that met the threshold, and domain-wide maximum value.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+x_ext <- hm_select_extreme_events(x, threshold = 25)
+ev <- hm_summarise_events(x_ext)
+head(ev)
+}
 \seealso{
 [hm_select_extreme_events()]
 }

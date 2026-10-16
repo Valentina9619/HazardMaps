@@ -39,7 +39,6 @@ A `ggplot` object.
 }
 \description{
 Maps each cell by the marginal family selected by [hm_fit_marginals()].
-Reproduces Fig. 6 of Clavijo Mesa et al. (2026).
 }
 \examples{
 \dontrun{

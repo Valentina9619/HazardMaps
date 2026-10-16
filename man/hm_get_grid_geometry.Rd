@@ -18,6 +18,14 @@ The same object with a new \code{$grid} element containing
 Computes the bounding box, grid spacing, and cell count from the
 coordinate table and stores them in \code{x$grid}.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_get_grid_geometry(x)
+x$grid$bbox
+}
 \seealso{
 [hm_standardize_coords()]
 }

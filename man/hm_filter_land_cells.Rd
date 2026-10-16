@@ -21,6 +21,16 @@ Drops columns where the fraction of finite positive values falls below
 \code{min_valid}. Needed for rotated-grid datasets such as EURO-CORDEX
 where sea cells produce all-NA columns.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+X <- hm_to_matrix(x)
+X_land <- hm_filter_land_cells(X)
+dim(X_land)
+}
 \seealso{
 [hm_to_matrix()], [hm_fit_marginals()]
 }

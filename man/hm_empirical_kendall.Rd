@@ -20,7 +20,6 @@ A symmetric \eqn{N \times N} matrix of Kendall \eqn{\hat{\tau}}
 \description{
 Estimates Kendall's \eqn{\hat{\tau}} between every pair of grid cells
 from the Gaussian scores matrix \code{Z} from [hm_pit_transform()].
-Implements Eq. 20 of Clavijo Mesa et al. (2026, Copernicus paper).
 }
 \details{
 For large grids (N > 1000) supply a subsample via \code{cell_idx} to

@@ -23,6 +23,13 @@ combinations are expanded with \code{expand.grid()}. Rotated or
 curvilinear grids supply \code{lat} and \code{lon} as 2D matrices, with
 rotated indices appended when available.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+head(x$coords)
+}
 \seealso{
 [hm_read_netcdf()], [hm_get_grid_geometry()]
 }

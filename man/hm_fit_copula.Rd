@@ -21,9 +21,7 @@ An \code{hm_copula} list with \code{type}, \code{model},
 }
 \description{
 Fits a C-vine, D-vine, or Gaussian copula to the uniform PIT matrix
-from [hm_pit_transform()], following Eq. 6 of Clavijo Mesa et al.
-(2026). The three structures correspond to the comparison in Table IV
-of that paper.
+from [hm_pit_transform()].
 }
 \details{
 Vine copulas are fitted via \code{rvinecopulib::vinecop()}. The

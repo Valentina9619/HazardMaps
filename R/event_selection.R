@@ -50,6 +50,15 @@
 #'   counts for reproducibility.
 #'
 #' @seealso [hm_summarise_events()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x_ext <- hm_select_extreme_events(x, threshold = 25)
+#' x_ext$meta$filter$n_days_retained
 #' @export
 hm_select_extreme_events <- function(x, threshold) {
 
@@ -103,6 +112,16 @@ hm_select_extreme_events <- function(x, threshold) {
 #'   and \code{max_value}.
 #'
 #' @seealso [hm_select_extreme_events()]
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' x_ext <- hm_select_extreme_events(x, threshold = 25)
+#' ev <- hm_summarise_events(x_ext)
+#' head(ev)
 #' @export
 hm_summarise_events <- function(x, threshold = NULL) {
 

@@ -29,8 +29,7 @@ A `ggplot` object.
 }
 \description{
 Draws a bar chart showing how many grid cells were assigned each
-distribution family by [hm_fit_marginals()]. Reproduces the style of
-Fig. A1 in Clavijo Mesa et al. (2026, Appendix A).
+distribution family by [hm_fit_marginals()].
 }
 \examples{
 \dontrun{

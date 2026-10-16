@@ -17,6 +17,15 @@ A numeric matrix with attributes \code{time} and \code{coords}.
 Reshapes \code{x$data} into a \eqn{T \times N} numeric matrix where rows
 are time steps and columns are grid cells.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+X <- hm_to_matrix(x)
+dim(X)
+}
 \seealso{
 [hm_decode_time()], [hm_standardize_coords()]
 }

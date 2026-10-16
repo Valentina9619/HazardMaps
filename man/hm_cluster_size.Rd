@@ -20,8 +20,7 @@ A data.frame with columns \code{date}, \code{cluster_size},
 }
 \description{
 For each time step, counts the land cells where the hazard value meets
-or exceeds \code{threshold}. This is the cluster-size metric
-\eqn{B(t)} (Eq. 21, Appendix C of Clavijo Mesa et al., 2026) used to
+or exceeds \code{threshold}. This is the cluster-size metric used to
 validate whether a dependence model reproduces the observed spatial
 footprint.
 }

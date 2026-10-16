@@ -28,8 +28,7 @@ An \code{hm_corrmodel} list with \code{best_family},
 \description{
 Fits Matérn, Exponential, Gaussian, and/or Spherical covariance families
 to the correlogram from [hm_empirical_correlogram()] by weighted least
-squares (Eq. 6--7 of Clavijo Mesa et al., 2026, SF paper). Selects the
-best family by RMSE, matching Table 1 of that paper.
+squares. Selects the best family by RMSE.
 }
 \examples{
 \dontrun{

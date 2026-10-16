@@ -19,6 +19,13 @@ The same object with \code{x$time} replaced by a \code{Date}
 Converts CF-style time values (e.g. \code{"days since 1970-01-01"}) to
 an R \code{Date} or \code{POSIXct} vector.
 }
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_decode_time(x)
+head(x$time)
+}
 \seealso{
 [hm_read_netcdf()], [hm_to_matrix()]
 }

@@ -3,7 +3,7 @@ if (getRversion() >= "2.15.1") {
     "lon", "lat", "group_id", "poly_id", "exceedance_value",
     "period_label", "best_dist_label", "count", "dist_label",
     "bin_center", "mean_tau", "n_pairs", "pct", "density",
-    "pdf", "y", "cdf", "theoretical", "empirical"
+    "pdf", "y", "cdf", "theoretical", "empirical", "scenario_value"
   ))
 }
 
@@ -357,6 +357,13 @@ if (getRversion() >= "2.15.1") {
 #' @param coord \code{"fixed"} or \code{"quickmap"}.
 #'
 #' @return A \code{ggplot} object.
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' hm_plot_spatial_domain(x, dataset = "copernicus", show_map = FALSE)
 #' @export
 hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NULL,
                                    show_map = TRUE, show_points = FALSE,
@@ -590,6 +597,15 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 #' @param coord \code{"fixed"} or \code{"quickmap"}.
 #'
 #' @return A \code{ggplot} object.
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' hm_plot_exceedance(x, threshold = 25, dataset = "copernicus",
+#'                    show_map = FALSE)
 #' @export
 hm_plot_exceedance <- function(x, threshold, metric = "count",
                                dataset = "auto", bbox = NULL, title = NULL,
@@ -726,6 +742,14 @@ hm_plot_exceedance <- function(x, threshold, metric = "count",
 #' @param bar_colour Bar border colour.
 #'
 #' @return A \code{ggplot} object.
+#'
+#' @examples
+#' f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+#'                  package = "HazardMaps")
+#' x <- hm_read_netcdf(f, var = "i10fg")
+#' x <- hm_standardize_coords(x)
+#' x <- hm_decode_time(x)
+#' hm_plot_exceedance_time(x, threshold = 25, by = "year")
 #' @export
 hm_plot_exceedance_time <- function(x, threshold, by = "year",
                                     title = NULL, xlab = NULL, ylab = NULL,

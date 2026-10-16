@@ -35,10 +35,9 @@ A numeric matrix (\eqn{S \times N}) of simulated hazard
 }
 \description{
 Generates \code{n_scenarios} synthetic hazard fields from the KLE of
-the fitted covariance model, following Eq. 8--11 of Clavijo Mesa et al.
-(2026, SF paper): build \eqn{\bar{C}}, eigen-decompose and truncate to
-\code{var_retain} variance, sample KLE coefficients, back-transform
-via \eqn{\Phi} and the inverse marginal CDFs.
+the fitted covariance model: build \eqn{\bar{C}}, eigen-decompose and
+truncate to \code{var_retain} variance, sample KLE coefficients,
+back-transform via \eqn{\Phi} and the inverse marginal CDFs.
 }
 \examples{
 \dontrun{

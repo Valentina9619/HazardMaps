@@ -39,8 +39,7 @@ A `ggplot` object (three panels arranged with
 Produces a three-panel diagnostic figure for the best-fitting marginal
 distribution at a chosen grid cell: (1) a histogram of the observed values
 with the fitted PDF overlaid, (2) the empirical vs fitted CDF, and (3) a
-quantile-quantile plot. Reproduces the style of Fig. 7 and Appendix B
-(Fig. B1) in Clavijo Mesa et al. (2026).
+quantile-quantile plot.
 }
 \examples{
 \dontrun{

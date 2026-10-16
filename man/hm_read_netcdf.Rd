@@ -17,14 +17,19 @@ An object of class \code{hm_hazard}.
 }
 \description{
 Reads a NetCDF file containing a hazard variable on a spatial grid
-(regular or rotated) and returns an `hm_hazard` object. CRS is not
-required.
+(regular or rotated) and returns an `hm_hazard` object.
 }
 \details{
 Supports CF-convention NetCDF files with regular grids (e.g. Copernicus,
 ERA5) and rotated or curvilinear grids (e.g. EURO-CORDEX). Coordinate
 names \code{lat}/\code{lon} and \code{latitude}/\code{longitude} are
 detected automatically.
+}
+\examples{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x$meta$grid_type
 }
 \seealso{
 [hm_standardize_coords()], [hm_decode_time()]

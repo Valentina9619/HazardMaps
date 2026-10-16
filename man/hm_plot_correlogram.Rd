@@ -37,7 +37,6 @@ A `ggplot` object.
 Draws the empirical correlogram produced by [hm_empirical_correlogram()]:
 average Kendall \eqn{\hat{\tau}} as a function of inter-site distance,
 with point size proportional to the number of cell pairs in each bin.
-Reproduces the style of Fig. 8 in Clavijo Mesa et al. (2026, SF paper).
 }
 \details{
 A horizontal dashed reference line is drawn at \eqn{\tau = 0} to help
