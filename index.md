@@ -2,6 +2,8 @@
 
 [![R-CMD-check](https://github.com/Valentina9619/HazardMaps/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/Valentina9619/HazardMaps/actions)
 [![pkgdown](https://img.shields.io/badge/docs-pkgdown-blue)](https://valentina9619.github.io/HazardMaps/)
+[![Codecov test
+coverage](https://codecov.io/gh/Valentina9619/HazardMaps/graph/badge.svg)](https://app.codecov.io/gh/Valentina9619/HazardMaps)
 
 ![HazardMaps logo](reference/figures/logo.png)
 
