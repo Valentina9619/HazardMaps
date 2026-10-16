@@ -58,7 +58,7 @@
                         <h4 data-toc-skip class="author">Maria Valentina
 Clavijo Mesa</h4>
             
-            <h4 data-toc-skip class="date">2026-10-15</h4>
+            <h4 data-toc-skip class="date">2026-10-16</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/Valentina9619/HazardMaps/blob/main/vignettes/tutorial.Rmd" class="external-link"><code>vignettes/tutorial.Rmd</code></a></small>
       <div class="d-none name"><code>tutorial.Rmd</code></div>
@@ -517,7 +517,7 @@ wind-gust intensity at all grid cells.</p>
 <span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"Value range: ["</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">min</a></span><span class="op">(</span><span class="va">scenarios_sf</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">","</span>,</span>
 <span>    <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">scenarios_sf</span>, na.rm <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"] m/s\n"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Value range: [ 0.6 , 40.28 ] m/s</span></span></code></pre></div>
+<span><span class="co">#&gt; Value range: [ 0.98 , 43.97 ] m/s</span></span></code></pre></div>
 <hr>
 </div>
 <div class="section level2">
@@ -570,8 +570,8 @@ well each model reproduces the observed footprint distribution.</p>
 <span><span class="co">#&gt;     Observed 8.88      4 138</span></span>
 <span><span class="co">#&gt;       C-vine 2.22      0  24</span></span>
 <span><span class="co">#&gt;       D-vine 2.41      0  23</span></span>
-<span><span class="co">#&gt;     Gaussian 2.46      0  26</span></span>
-<span><span class="co">#&gt;  SF (Matérn) 8.41      6  63</span></span></code></pre></div>
+<span><span class="co">#&gt;     Gaussian 2.49      0  27</span></span>
+<span><span class="co">#&gt;  SF (Matérn) 8.39      6  66</span></span></code></pre></div>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_clusters</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>model <span class="op">=</span> <span class="st">"Observed"</span>,    size <span class="op">=</span> <span class="va">cluster_obs</span><span class="op">$</span><span class="va">cluster_size</span><span class="op">)</span>,</span>

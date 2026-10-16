@@ -1,7 +1,7 @@
 # Plot best-fitting marginal distribution by grid cell
 
 Maps each cell by the marginal family selected by
-\[hm_fit_marginals()\]. Reproduces Fig. 6 of Clavijo Mesa et al. (2026).
+\[hm_fit_marginals()\].
 
 ## Usage
 

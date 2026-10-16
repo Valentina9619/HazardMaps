@@ -30,3 +30,16 @@ reproducibility.
 ## See also
 
 \[hm_summarise_events()\]
+
+## Examples
+
+``` r
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+x_ext <- hm_select_extreme_events(x, threshold = 25)
+x_ext$meta$filter$n_days_retained
+#> [1] 382
+```

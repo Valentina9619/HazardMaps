@@ -23,3 +23,16 @@ The same object with a new `$grid` element containing `nx`, `ny`, `dx`,
 ## See also
 
 \[hm_standardize_coords()\]
+
+## Examples
+
+``` r
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_get_grid_geometry(x)
+x$grid$bbox
+#> lon_min lon_max lat_min lat_max 
+#>    11.5    15.0    44.0    47.0 
+```

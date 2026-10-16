@@ -1,9 +1,8 @@
 # Compute spatial cluster sizes of extreme events
 
 For each time step, counts the land cells where the hazard value meets
-or exceeds `threshold`. This is the cluster-size metric \\B(t)\\ (Eq.
-21, Appendix C of Clavijo Mesa et al., 2026) used to validate whether a
-dependence model reproduces the observed spatial footprint.
+or exceeds `threshold`. This is the cluster-size metric used to validate
+whether a dependence model reproduces the observed spatial footprint.
 
 ## Usage
 

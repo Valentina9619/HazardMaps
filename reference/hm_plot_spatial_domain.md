@@ -73,3 +73,13 @@ hm_plot_spatial_domain(
 ## Value
 
 A `ggplot` object.
+
+## Examples
+
+``` r
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+hm_plot_spatial_domain(x, dataset = "copernicus", show_map = FALSE)
+```

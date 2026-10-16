@@ -2,7 +2,6 @@
 
 Draws `n_scenarios` realisations from a fitted copula and
 back-transforms to physical units via the inverse marginal CDFs.
-Implements Eq. 7–8 of Clavijo Mesa et al. (2026).
 
 ## Usage
 

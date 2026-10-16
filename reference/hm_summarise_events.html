@@ -71,6 +71,25 @@ read from <code>x$meta$filter$threshold</code>.</p></dd>
     <div class="dont-index"><p>[hm_select_extreme_events()]</p></div>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">f</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"Copernicus_dailymax_1994_2021.nc"</span>,</span></span>
+<span class="r-in"><span>                 package <span class="op">=</span> <span class="st">"HazardMaps"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="hm_read_netcdf.html">hm_read_netcdf</a></span><span class="op">(</span><span class="va">f</span>, var <span class="op">=</span> <span class="st">"i10fg"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="hm_standardize_coords.html">hm_standardize_coords</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="hm_decode_time.html">hm_decode_time</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x_ext</span> <span class="op">&lt;-</span> <span class="fu"><a href="hm_select_extreme_events.html">hm_select_extreme_events</a></span><span class="op">(</span><span class="va">x</span>, threshold <span class="op">=</span> <span class="fl">25</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ev</span> <span class="op">&lt;-</span> <span class="fu">hm_summarise_events</span><span class="op">(</span><span class="va">x_ext</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">ev</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>         date n_cells_exceeded max_value</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1 1994-01-01               24  30.32205</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2 1994-01-06                2  25.50521</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3 1994-01-07                8  27.78774</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4 1994-01-20                1  25.16436</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5 1994-01-21                1  25.72410</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 1994-01-26               10  30.36147</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

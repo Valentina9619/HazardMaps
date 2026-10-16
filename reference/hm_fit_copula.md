@@ -1,9 +1,7 @@
 # Fit a spatial copula model to the uniform PIT data
 
 Fits a C-vine, D-vine, or Gaussian copula to the uniform PIT matrix from
-\[hm_pit_transform()\], following Eq. 6 of Clavijo Mesa et al. (2026).
-The three structures correspond to the comparison in Table IV of that
-paper.
+\[hm_pit_transform()\].
 
 ## Usage
 

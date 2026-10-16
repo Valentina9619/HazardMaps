@@ -1,8 +1,7 @@
 # Read a hazard NetCDF dataset
 
 Reads a NetCDF file containing a hazard variable on a spatial grid
-(regular or rotated) and returns an \`hm_hazard\` object. CRS is not
-required.
+(regular or rotated) and returns an \`hm_hazard\` object.
 
 ## Usage
 
@@ -34,3 +33,13 @@ names `lat`/`lon` and `latitude`/`longitude` are detected automatically.
 ## See also
 
 \[hm_standardize_coords()\], \[hm_decode_time()\]
+
+## Examples
+
+``` r
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x$meta$grid_type
+#> [1] "regular"
+```

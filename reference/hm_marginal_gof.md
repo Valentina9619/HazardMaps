@@ -32,3 +32,20 @@ A list with `cell_id`, `dist`, `dist_label`, `params`, `ks_statistic`,
 ## See also
 
 \[hm_fit_marginals()\], \[hm_pit_transform()\]
+
+## Examples
+
+``` r
+if (FALSE) { # \dontrun{
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_standardize_coords(x)
+x <- hm_decode_time(x)
+x_ext <- hm_select_extreme_events(x, threshold = 25)
+X    <- hm_to_matrix(x_ext)
+fits <- hm_fit_marginals(X)
+gof  <- hm_marginal_gof(X, fits, cell_id = 1L)
+gof$ks_statistic
+} # }
+```

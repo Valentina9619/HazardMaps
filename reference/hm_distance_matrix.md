@@ -1,8 +1,7 @@
 # Compute pairwise haversine distances between grid cells
 
 Returns a symmetric \\N \times N\\ distance matrix of great-circle
-distances in kilometres between all pairs of land cells (Eq. 5 of
-Clavijo Mesa et al., 2026, SF paper).
+distances in kilometres between all pairs of land cells.
 
 ## Usage
 

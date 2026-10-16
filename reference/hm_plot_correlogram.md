@@ -3,8 +3,7 @@
 Draws the empirical correlogram produced by
 \[hm_empirical_correlogram()\]: average Kendall \\\hat{\tau}\\ as a
 function of inter-site distance, with point size proportional to the
-number of cell pairs in each bin. Reproduces the style of Fig. 8 in
-Clavijo Mesa et al. (2026, SF paper).
+number of cell pairs in each bin.
 
 ## Usage
 

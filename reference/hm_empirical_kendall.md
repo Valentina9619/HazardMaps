@@ -1,8 +1,7 @@
 # Compute the empirical pairwise Kendall correlation matrix
 
 Estimates Kendall's \\\hat{\tau}\\ between every pair of grid cells from
-the Gaussian scores matrix `Z` from \[hm_pit_transform()\]. Implements
-Eq. 20 of Clavijo Mesa et al. (2026, Copernicus paper).
+the Gaussian scores matrix `Z` from \[hm_pit_transform()\].
 
 ## Usage
 

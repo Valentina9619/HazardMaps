@@ -1,9 +1,8 @@
 # Simulate hazard scenarios via Karhunen-Loève Expansion
 
 Generates `n_scenarios` synthetic hazard fields from the KLE of the
-fitted covariance model, following Eq. 8–11 of Clavijo Mesa et al.
-(2026, SF paper): build \\\bar{C}\\, eigen-decompose and truncate to
-`var_retain` variance, sample KLE coefficients, back-transform via
+fitted covariance model: build \\\bar{C}\\, eigen-decompose and truncate
+to `var_retain` variance, sample KLE coefficients, back-transform via
 \\\Phi\\ and the inverse marginal CDFs.
 
 ## Usage

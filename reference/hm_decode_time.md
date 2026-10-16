@@ -27,3 +27,15 @@ or `POSIXct` vector (sub-daily data).
 ## See also
 
 \[hm_read_netcdf()\], \[hm_to_matrix()\]
+
+## Examples
+
+``` r
+f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                 package = "HazardMaps")
+x <- hm_read_netcdf(f, var = "i10fg")
+x <- hm_decode_time(x)
+head(x$time)
+#> [1] "1994-01-01" "1994-01-02" "1994-01-03" "1994-01-04" "1994-01-05"
+#> [6] "1994-01-06"
+```
