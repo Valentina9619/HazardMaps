@@ -12,7 +12,7 @@ Authors@R: c(
            comment = c(ORCID = "0000-0002-7108-637X")))
 Description: An R package for reproducible analysis of spatial dependence in environmental
              and climate-related variables. The package provides a unified workflow to
-             ingest spatial datasets, estimate and visualize spatial correlation structures,
+             read and prepare spatial datasets, estimate and visualize spatial correlation structures,
              fit multiple dependence models including vine copulas (C-vine and D-vine),
              Gaussian models, and stochastic fields, and compare them using quantitative
              indicators to support model selection. Based on the selected model, the package
