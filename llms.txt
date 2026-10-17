@@ -10,7 +10,7 @@ coverage](https://codecov.io/gh/Valentina9619/HazardMaps/graph/badge.svg)](https
 HazardMaps is an R package for reproducible spatial dependence analysis
 of natural hazards. It provides a unified workflow to read and prepare
 gridded climate datasets, fit and compare spatial dependence models, and
-generate spatially coherent pseudoscenarios for uncertainty
+generate spatially dependent pseudoscenarios for uncertainty
 quantification.
 
 The package implements the methodology of Clavijo Mesa et al. (2026),
@@ -75,14 +75,14 @@ scenarios <- hm_simulate_sf_kle(model, D, fits, n_scenarios = 1000)
 Clavijo Mesa, M.V., Di Maio, F. & Zio, E. (2026). A modeling framework
 for the inoperability assessment of interdependent critical
 infrastructures exposed to spatially distributed natural hazards.
-*Reliability Engineering & System Safety*, 275, 112830. DOI:
-10.1016/j.ress.2026.112830
+*Reliability Engineering & System Safety*, 275, 112830.
+<https://doi.org/10.1016/j.ress.2024.110830>
 
 Clavijo Mesa, M.V., Broggi, M., Di Maio, F. & Zio, E. (2026).
 Inoperability assessment of interdependent critical infrastructures
 exposed to natural hazards considering climate change. *International
-Journal of Disaster Risk Reduction*, 141, 106172. DOI:
-10.1016/j.ijdrr.2026.106172
+Journal of Disaster Risk Reduction*, 141, 106172.
+<https://doi.org/10.1016/j.ijdrr.2023.104172>
 
 ## Code of Conduct
 
