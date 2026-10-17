@@ -5,8 +5,7 @@
 - **Maria Valentina Clavijo Mesa**. Author, maintainer.
   [](https://orcid.org/0000-0001-6052-5771)
 
-- **Enrico Zio**. Thesis advisor.
-  [](https://orcid.org/0000-0002-7108-637X)
+- **Enrico Zio**. Contributor. [](https://orcid.org/0000-0002-7108-637X)
 
 ## Citation
 
