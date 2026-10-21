@@ -65,6 +65,7 @@ hm_read_netcdf <- function(file, var = NULL) {
   out
 }
 
+#' @noRd
 .hm_resolve_var <- function(nc, var) {
   vnames <- names(nc$var)
   if (is.null(var)) {
@@ -79,6 +80,7 @@ hm_read_netcdf <- function(file, var = NULL) {
   var
 }
 
+#' @noRd
 .hm_read_coord <- function(nc, names) {
   for (nm in names) {
     if (nm %in% names(nc$var)) return(ncdf4::ncvar_get(nc, nm))
@@ -280,6 +282,7 @@ hm_decode_time <- function(x, tz = "UTC") {
   x
 }
 
+#' @noRd
 .hm_parse_origin <- function(origin_str, tz) {
   origin_str <- sub("Z$", "", origin_str)
   origin     <- suppressWarnings(as.POSIXct(origin_str, tz = tz))
@@ -292,6 +295,7 @@ hm_decode_time <- function(x, tz = "UTC") {
   origin
 }
 
+#' @noRd
 .hm_time_multiplier <- function(base_unit) {
   switch(base_unit,
     "day"    = , "days"    = 86400,

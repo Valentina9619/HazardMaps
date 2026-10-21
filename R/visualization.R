@@ -7,6 +7,7 @@ if (getRversion() >= "2.15.1") {
   ))
 }
 
+#' @noRd
 .hm_validate_bbox <- function(bbox, coords) {
 
   if (is.null(coords) || !is.data.frame(coords))
@@ -41,7 +42,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_regular_spacing <- function(z) {
   z <- sort(unique(as.vector(z)))
   d <- diff(z)
@@ -51,6 +52,7 @@ if (getRversion() >= "2.15.1") {
   stats::median(d, na.rm = TRUE)
 }
 
+#' @noRd
 .hm_regular_sequence <- function(zmin, zmax, dz) {
   if (!is.finite(dz) || dz <= 0)
     stop("`dz` must be a positive finite number.")
@@ -58,12 +60,14 @@ if (getRversion() >= "2.15.1") {
   z[z <= zmax + dz / 1000]
 }
 
+#' @noRd
 .hm_label_lon <- function(x) {
   out        <- paste0(abs(x), "\u00B0", ifelse(x < 0, "W", "E"))
   out[x == 0] <- "0\u00B0"
   out
 }
 
+#' @noRd
 .hm_label_lat <- function(x) {
   out        <- paste0(abs(x), "\u00B0", ifelse(x < 0, "S", "N"))
   out[x == 0] <- "0\u00B0"
@@ -71,7 +75,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_resolve_plot_type <- function(x, dataset = "auto") {
 
   dataset <- match.arg(dataset,
@@ -93,7 +97,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_build_regular_grid_lines <- function(x, bbox = NULL, grid_res = NULL) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -142,7 +146,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_build_rotated_grid_lines <- function(x, bbox = NULL) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -192,7 +196,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_base_domain_plot <- function(bbox, show_map = TRUE) {
 
   if (!requireNamespace("ggplot2", quietly = TRUE))
@@ -214,6 +218,7 @@ if (getRversion() >= "2.15.1") {
   p
 }
 
+#' @noRd
 .hm_format_domain_plot <- function(p, bbox, title = NULL, coord = "fixed") {
 
   coord <- match.arg(coord, c("fixed", "quickmap"))
@@ -241,7 +246,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_plot_regular_domain <- function(x, bbox = NULL, title = NULL, show_map = TRUE,
                                     show_points = FALSE, grid_res = NULL,
                                     grid_colour = "grey55", grid_linewidth = 0.35,
@@ -288,7 +293,7 @@ if (getRversion() >= "2.15.1") {
 }
 
 
-
+#' @noRd
 .hm_plot_rotated_domain <- function(x, bbox = NULL, title = NULL, show_map = TRUE,
                                     show_points = FALSE, grid_colour = "grey55",
                                     grid_linewidth = 0.35, point_size = 0.5,
@@ -398,7 +403,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 
 
 
-
+#' @noRd
 .hm_exceedance_metrics <- function(x, threshold) {
 
   if (is.null(x) || !"hm_hazard" %in% class(x))
@@ -428,7 +433,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 }
 
 
-
+#' @noRd
 .hm_exceedance_regular_polygons <- function(coords, bbox, grid_res = NULL,
                                             metric = "count") {
 
@@ -468,7 +473,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 }
 
 
-
+#' @noRd
 .hm_exceedance_corner_matrix <- function(z) {
 
   nr <- nrow(z)
@@ -500,7 +505,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 }
 
 
-
+#' @noRd
 .hm_exceedance_rotated_polygons <- function(coords, bbox, metric = "count") {
 
   required <- c("lon", "lat", "rlon", "rlat",
@@ -551,7 +556,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
 }
 
 
-
+#' @noRd
 .hm_exceedance_polygon_bbox <- function(cells) {
 
   if (is.null(cells) || !is.data.frame(cells))
@@ -565,6 +570,7 @@ hm_plot_spatial_domain <- function(x, dataset = "auto", bbox = NULL, title = NUL
     lat_max = max(cells$lat, na.rm = TRUE))
 }
 
+#' @noRd
 .hm_exceedance_union_bbox <- function(bbox_a, bbox_b) {
 
   keys   <- c("lon_min", "lon_max", "lat_min", "lat_max")
@@ -675,7 +681,7 @@ hm_plot_exceedance <- function(x, threshold, metric = "count",
 }
 
 
-
+#' @noRd
 .hm_exceedance_time_summary <- function(x, threshold, by = "year") {
 
   by <- match.arg(by, c("year", "2_years", "5_years", "decade"))

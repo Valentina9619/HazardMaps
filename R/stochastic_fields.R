@@ -1,3 +1,4 @@
+#' @noRd
 .hm_matern <- function(D, theta) {
   range      <- theta[1]
   smoothness <- theta[2]
@@ -18,6 +19,7 @@
   corr
 }
 
+#' @noRd
 .hm_exponential <- function(D, theta) {
   corr       <- exp(-D / theta[1])
   corr       <- (1 - theta[2]) * corr
@@ -25,6 +27,7 @@
   corr
 }
 
+#' @noRd
 .hm_gaussian_cov <- function(D, theta) {
   corr       <- exp(-(D / theta[1])^2)
   corr       <- (1 - theta[2]) * corr
@@ -32,6 +35,7 @@
   corr
 }
 
+#' @noRd
 .hm_spherical <- function(D, theta) {
   h          <- D / theta[1]
   corr       <- ifelse(h <= 1, 1 - 1.5 * h + 0.5 * h^3, 0)
@@ -40,7 +44,7 @@
   corr
 }
 
-
+#' @noRd
 .hm_fit_kernel <- function(fam, corg, range_init) {
 
   w       <- corg$n_pairs / sum(corg$n_pairs)

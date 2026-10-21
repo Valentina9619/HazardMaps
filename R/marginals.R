@@ -12,7 +12,7 @@
 
 
 # Gumbel distribution
-
+#' @noRd
 .dgumbel <- function(x, mu, beta, log = FALSE) {
   if (beta <= 0) return(rep(if (log) -Inf else 0, length(x)))
   z   <- (x - mu) / beta
@@ -20,16 +20,19 @@
   if (log) val else exp(val)
 }
 
+#' @noRd
 .pgumbel <- function(q, mu, beta, lower.tail = TRUE) {
   p <- exp(-exp(-(q - mu) / beta))
   if (lower.tail) p else 1 - p
 }
 
+#' @noRd
 .qgumbel <- function(p, mu, beta) mu - beta * log(-log(p))
 
 
 # Zero-truncated Gaussian (x > 0)
 
+#' @noRd
 .dtnorm <- function(x, mean, sd, log = FALSE) {
   if (sd <= 0) return(rep(if (log) -Inf else 0, length(x)))
   phi0        <- stats::pnorm(0, mean, sd, lower.tail = FALSE)
@@ -38,6 +41,7 @@
   if (log) log(val) else val
 }
 
+#' @noRd
 .ptnorm <- function(q, mean, sd, lower.tail = TRUE) {
   phi0      <- stats::pnorm(0, mean, sd, lower.tail = FALSE)
   p         <- pmax(0, (stats::pnorm(q, mean, sd) -
@@ -46,6 +50,7 @@
   if (lower.tail) p else 1 - p
 }
 
+#' @noRd
 .qtnorm <- function(p, mean, sd) {
   phi0 <- stats::pnorm(0, mean, sd, lower.tail = FALSE)
   stats::qnorm(stats::pnorm(0, mean, sd) + p * phi0, mean, sd)
@@ -53,13 +58,14 @@
 
 
 # Zero-truncated Laplace (x > 0)
-
+#' @noRd
 .plaplace <- function(x, mu, b) {
   ifelse(x < mu,
          0.5 * exp((x - mu) / b),
          1 - 0.5 * exp(-(x - mu) / b))
 }
 
+#' @noRd
 .dtlaplace <- function(x, mu, b, log = FALSE) {
   if (b <= 0) return(rep(if (log) -Inf else 0, length(x)))
   F0          <- .plaplace(0, mu, b)
@@ -68,6 +74,7 @@
   if (log) log(val) else val
 }
 
+#' @noRd
 .ptlaplace <- function(q, mu, b, lower.tail = TRUE) {
   F0        <- .plaplace(0, mu, b)
   p         <- pmax(0, (.plaplace(q, mu, b) - F0) / (1 - F0))
@@ -75,6 +82,7 @@
   if (lower.tail) p else 1 - p
 }
 
+#' @noRd
 .qtlaplace <- function(p, mu, b) {
   .qlaplace <- function(p, mu, b) {
     ifelse(p < 0.5,
@@ -87,7 +95,7 @@
 
 
 # CDF / quantile dispatch
-
+#' @noRd
 .hm_pfun <- function(dist, params) {
   switch(dist,
     weibull  = function(q) stats::pweibull(q, params$shape, params$scale),
@@ -100,6 +108,7 @@
   )
 }
 
+#' @noRd
 .hm_qfun <- function(dist, params) {
   switch(dist,
     weibull  = function(p) stats::qweibull(p, params$shape, params$scale),
@@ -114,7 +123,7 @@
 
 
 # MLE fitting for one cell
-
+#' @noRd
 .hm_fit_one <- function(x, dist) {
 
   n <- length(x)

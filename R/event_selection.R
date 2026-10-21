@@ -1,3 +1,4 @@
+#' @noRd
 .hm_check_hazard <- function(x) {
   if (is.null(x) || !"hm_hazard" %in% class(x))
     stop("`x` must be an object of class `hm_hazard`.")
@@ -11,6 +12,7 @@
 }
 
 
+#' @noRd
 .hm_to_flat_matrix <- function(x) {
   d     <- dim(x$data)
   T_len <- length(x$time)

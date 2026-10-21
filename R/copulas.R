@@ -1,3 +1,4 @@
+#' @noRd
 .hm_inv_marginal <- function(u, dist, params) {
   switch(dist,
     weibull  = stats::qweibull(u, params$shape, params$scale),
@@ -93,7 +94,7 @@ hm_fit_copula <- function(U, type = "cvine", ...) {
   )
 }
 
-
+#' @noRd
 .hm_nearPD <- function(R) {
   eig  <- eigen(R, symmetric = TRUE)
   lam  <- pmax(eig$values, 1e-8)
