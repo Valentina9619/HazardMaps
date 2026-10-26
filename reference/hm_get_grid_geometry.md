@@ -13,7 +13,7 @@ hm_get_grid_geometry(x)
 
 - x:
 
-  An `hm_hazard` object after \[hm_standardize_coords()\].
+  An `hm_hazard` object returned by \[hm_read_netcdf()\].
 
 ## Value
 

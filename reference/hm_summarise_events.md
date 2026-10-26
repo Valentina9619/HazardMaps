@@ -13,7 +13,8 @@ hm_summarise_events(x, threshold = NULL)
 
 - x:
 
-  An `hm_hazard` object, typically from \[hm_select_extreme_events()\].
+  An `hm_hazard` object after \[hm_standardize_coords()\] and
+  \[hm_decode_time()\].
 
 - threshold:
 

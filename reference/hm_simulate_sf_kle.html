@@ -69,16 +69,17 @@ back-transform via \(\Phi\) and the inverse marginal CDFs.</p>
 
 
 <dt id="arg-d">D<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
-<dd><p>Symmetric distance matrix in km from [hm_distance_matrix()].
-Must have <code>nrow(fits)</code> rows.</p></dd>
+<dd><p>Symmetric numeric distance matrix in km from
+[hm_distance_matrix()]. Must have the same dimensions as <code>tau</code>.</p></dd>
 
 
 <dt id="arg-fits">fits<a class="anchor" aria-label="anchor" href="#arg-fits"></a></dt>
-<dd><p>data.frame from [hm_fit_marginals()] for the same land cells.</p></dd>
+<dd><p>data.frame from [hm_fit_marginals()] for the same land
+cells used to fit <code>copula</code>.</p></dd>
 
 
 <dt id="arg-n-scenarios">n_scenarios<a class="anchor" aria-label="anchor" href="#arg-n-scenarios"></a></dt>
-<dd><p>Number of synthetic scenarios. Defaults to 1000.</p></dd>
+<dd><p>Number of scenarios. Defaults to 1000.</p></dd>
 
 
 <dt id="arg-var-retain">var_retain<a class="anchor" aria-label="anchor" href="#arg-var-retain"></a></dt>

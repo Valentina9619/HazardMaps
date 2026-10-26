@@ -28,8 +28,7 @@ hm_fit_correlation_model(
 
 - max_dist:
 
-  Maximum distance in km to include. Defaults to the full correlogram
-  range.
+  Maximum distance in km to include. Defaults to the observed maximum.
 
 ## Value
 

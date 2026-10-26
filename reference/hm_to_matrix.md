@@ -13,8 +13,7 @@ hm_to_matrix(x)
 
 - x:
 
-  An `hm_hazard` object after \[hm_standardize_coords()\] and
-  \[hm_decode_time()\].
+  An `hm_hazard` object returned by \[hm_read_netcdf()\].
 
 ## Value
 

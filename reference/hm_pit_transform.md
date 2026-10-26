@@ -14,11 +14,12 @@ hm_pit_transform(X, fits, gaussian = TRUE)
 
 - X:
 
-  Numeric matrix (\\T \times N\\) from \[hm_to_matrix()\].
+  Numeric matrix from \[hm_fit_marginals()\].
 
 - fits:
 
-  data.frame from \[hm_fit_marginals()\].
+  A data frame returned by \[hm_fit_marginals()\], with one row per grid
+  cell containing the best-fit distribution and parameters.
 
 - gaussian:
 

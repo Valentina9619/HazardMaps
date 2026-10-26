@@ -26,16 +26,17 @@ hm_simulate_sf_kle(
 
 - D:
 
-  Symmetric distance matrix in km from \[hm_distance_matrix()\]. Must
-  have `nrow(fits)` rows.
+  Symmetric numeric distance matrix in km from \[hm_distance_matrix()\].
+  Must have the same dimensions as `tau`.
 
 - fits:
 
-  data.frame from \[hm_fit_marginals()\] for the same land cells.
+  data.frame from \[hm_fit_marginals()\] for the same land cells used to
+  fit `copula`.
 
 - n_scenarios:
 
-  Number of synthetic scenarios. Defaults to 1000.
+  Number of scenarios. Defaults to 1000.
 
 - var_retain:
 

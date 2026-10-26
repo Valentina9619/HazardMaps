@@ -14,7 +14,8 @@ hm_cluster_size(X, threshold, time = NULL)
 
 - X:
 
-  Numeric matrix (\\T \times N\\) from \[hm_filter_land_cells()\].
+  Numeric matrix of land-cell observations from
+  \[hm_filter_land_cells()\].
 
 - threshold:
 

@@ -14,11 +14,12 @@ hm_marginal_gof(X, fits, cell_id)
 
 - X:
 
-  Numeric matrix passed to \[hm_fit_marginals()\].
+  Numeric matrix from \[hm_fit_marginals()\].
 
 - fits:
 
-  data.frame from \[hm_fit_marginals()\].
+  A data frame returned by \[hm_fit_marginals()\], with one row per grid
+  cell containing the best-fit distribution and parameters.
 
 - cell_id:
 
