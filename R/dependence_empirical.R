@@ -242,8 +242,8 @@ hm_empirical_correlogram <- function(tau, D, n_bins = 30L, max_dist = NULL) {
 #' validate whether a dependence model reproduces the observed spatial
 #' footprint.
 #'
-#' @param X Numeric matrix (\eqn{T \times N}) from [hm_filter_land_cells()].
-#' @param threshold A single finite numeric value.
+#' @param X Numeric matrix of land-cell observations from [hm_filter_land_cells()].
+#' @inheritParams hm_select_extreme_events
 #' @param time Optional date vector of length \eqn{T}. Defaults to row
 #'   indices.
 #'

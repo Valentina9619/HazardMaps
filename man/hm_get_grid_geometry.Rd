@@ -7,7 +7,7 @@
 hm_get_grid_geometry(x)
 }
 \arguments{
-\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()].}
+\item{x}{An \code{hm_hazard} object returned by [hm_read_netcdf()].}
 }
 \value{
 The same object with a new \code{$grid} element containing

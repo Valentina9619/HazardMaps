@@ -7,8 +7,8 @@
 hm_summarise_events(x, threshold = NULL)
 }
 \arguments{
-\item{x}{An \code{hm_hazard} object, typically from
-[hm_select_extreme_events()].}
+\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()] and
+[hm_decode_time()].}
 
 \item{threshold}{Threshold used to count exceeding cells. If \code{NULL},
 read from \code{x$meta$filter$threshold}.}

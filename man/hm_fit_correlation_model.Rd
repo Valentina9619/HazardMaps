@@ -18,7 +18,7 @@ hm_fit_correlation_model(
 Defaults to all four.}
 
 \item{max_dist}{Maximum distance in km to include. Defaults to the
-full correlogram range.}
+observed maximum.}
 }
 \value{
 An \code{hm_corrmodel} list with \code{best_family},

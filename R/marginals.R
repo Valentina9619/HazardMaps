@@ -314,8 +314,9 @@ hm_fit_marginals <- function(X,
 #' a chosen cell. The KS test is a complementary diagnostic — distribution
 #' selection is done by AIC/BIC in [hm_fit_marginals()].
 #'
-#' @param X Numeric matrix passed to [hm_fit_marginals()].
-#' @param fits data.frame from [hm_fit_marginals()].
+#' @param X Numeric matrix from [hm_fit_marginals()].
+#' @param fits A data frame returned by [hm_fit_marginals()], with one row
+#'   per grid cell containing the best-fit distribution and parameters.
 #' @param cell_id Column index to diagnose.
 #'
 #' @return A list with \code{cell_id}, \code{dist}, \code{dist_label},
@@ -396,8 +397,7 @@ hm_marginal_gof <- function(X, fits, cell_id) {
 #' Transforms \code{X} to uniform margins using each cell's fitted CDF, then
 #' optionally applies the probit transform to obtain centred Gaussian scores.
 #'
-#' @param X Numeric matrix (\eqn{T \times N}) from [hm_to_matrix()].
-#' @param fits data.frame from [hm_fit_marginals()].
+#' @inheritParams hm_marginal_gof
 #' @param gaussian If \code{TRUE} (default), also returns centred Gaussian
 #'   scores \eqn{Z = \Phi^{-1}(U)}.
 #'

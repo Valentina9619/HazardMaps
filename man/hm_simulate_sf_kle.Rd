@@ -16,12 +16,13 @@ hm_simulate_sf_kle(
 \arguments{
 \item{corrmodel}{An \code{hm_corrmodel} from [hm_fit_correlation_model()].}
 
-\item{D}{Symmetric distance matrix in km from [hm_distance_matrix()].
-Must have \code{nrow(fits)} rows.}
+\item{D}{Symmetric numeric distance matrix in km from
+[hm_distance_matrix()]. Must have the same dimensions as \code{tau}.}
 
-\item{fits}{data.frame from [hm_fit_marginals()] for the same land cells.}
+\item{fits}{data.frame from [hm_fit_marginals()] for the same land
+cells used to fit \code{copula}.}
 
-\item{n_scenarios}{Number of synthetic scenarios. Defaults to 1000.}
+\item{n_scenarios}{Number of scenarios. Defaults to 1000.}
 
 \item{var_retain}{Variance fraction retained in KLE truncation.
 Defaults to 0.95.}

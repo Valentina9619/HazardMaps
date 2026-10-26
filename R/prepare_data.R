@@ -165,7 +165,7 @@ hm_standardize_coords <- function(x) {
 #' Computes the bounding box, grid spacing, and cell count from the
 #' coordinate table and stores them in \code{x$grid}.
 #'
-#' @param x An \code{hm_hazard} object after [hm_standardize_coords()].
+#' @inheritParams hm_standardize_coords
 #'
 #' @return The same object with a new \code{$grid} element containing
 #'   \code{nx}, \code{ny}, \code{dx}, \code{dy}, \code{bbox},
@@ -240,7 +240,7 @@ hm_get_grid_geometry <- function(x) {
 #' Converts CF-style time values (e.g. \code{"days since 1970-01-01"}) to
 #' an R \code{Date} or \code{POSIXct} vector.
 #'
-#' @param x An \code{hm_hazard} object returned by [hm_read_netcdf()].
+#' @inheritParams hm_standardize_coords
 #' @param tz Time zone string for sub-daily data. Defaults to \code{"UTC"}.
 #'
 #' @return The same object with \code{x$time} replaced by a \code{Date}
@@ -315,8 +315,7 @@ hm_decode_time <- function(x, tz = "UTC") {
 #' Reshapes \code{x$data} into a \eqn{T \times N} numeric matrix where rows
 #' are time steps and columns are grid cells.
 #'
-#' @param x An \code{hm_hazard} object after [hm_standardize_coords()] and
-#'   [hm_decode_time()].
+#' @inheritParams hm_standardize_coords
 #'
 #' @return A numeric matrix with attributes \code{time} and \code{coords}.
 #'

@@ -7,8 +7,7 @@
 hm_to_matrix(x)
 }
 \arguments{
-\item{x}{An \code{hm_hazard} object after [hm_standardize_coords()] and
-[hm_decode_time()].}
+\item{x}{An \code{hm_hazard} object returned by [hm_read_netcdf()].}
 }
 \value{
 A numeric matrix with attributes \code{time} and \code{coords}.

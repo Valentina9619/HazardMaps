@@ -105,8 +105,7 @@ hm_select_extreme_events <- function(x, threshold) {
 #' Returns a data.frame with one row per time step: date, number of cells
 #' that met the threshold, and domain-wide maximum value.
 #'
-#' @param x An \code{hm_hazard} object, typically from
-#'   [hm_select_extreme_events()].
+#' @inheritParams hm_select_extreme_events
 #' @param threshold Threshold used to count exceeding cells. If \code{NULL},
 #'   read from \code{x$meta$filter$threshold}.
 #'

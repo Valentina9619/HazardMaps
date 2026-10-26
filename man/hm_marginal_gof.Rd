@@ -7,9 +7,10 @@
 hm_marginal_gof(X, fits, cell_id)
 }
 \arguments{
-\item{X}{Numeric matrix passed to [hm_fit_marginals()].}
+\item{X}{Numeric matrix from [hm_fit_marginals()].}
 
-\item{fits}{data.frame from [hm_fit_marginals()].}
+\item{fits}{A data frame returned by [hm_fit_marginals()], with one row
+per grid cell containing the best-fit distribution and parameters.}
 
 \item{cell_id}{Column index to diagnose.}
 }

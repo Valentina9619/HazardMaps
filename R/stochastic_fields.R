@@ -98,8 +98,7 @@
 #' @param families Covariance families to fit. Any subset of
 #'   \code{c("matern", "exponential", "gaussian", "spherical")}.
 #'   Defaults to all four.
-#' @param max_dist Maximum distance in km to include. Defaults to the
-#'   full correlogram range.
+#' @inheritParams hm_empirical_correlogram
 #'
 #' @return An \code{hm_corrmodel} list with \code{best_family},
 #'   \code{best_params}, \code{best_rmse}, \code{all_fits}, and
@@ -180,13 +179,10 @@ hm_fit_correlation_model <- function(corg,
 #' back-transform via \eqn{\Phi} and the inverse marginal CDFs.
 #'
 #' @param corrmodel An \code{hm_corrmodel} from [hm_fit_correlation_model()].
-#' @param D Symmetric distance matrix in km from [hm_distance_matrix()].
-#'   Must have \code{nrow(fits)} rows.
-#' @param fits data.frame from [hm_fit_marginals()] for the same land cells.
-#' @param n_scenarios Number of synthetic scenarios. Defaults to 1000.
+#' @inheritParams hm_simulate_copula
+#' @inheritParams hm_empirical_correlogram
 #' @param var_retain Variance fraction retained in KLE truncation.
 #'   Defaults to 0.95.
-#' @param seed Optional integer random seed.
 #'
 #' @return A numeric matrix (\eqn{S \times N}) of simulated hazard
 #'   intensities. Attributes \code{family}, \code{k_modes},

@@ -7,7 +7,7 @@
 hm_cluster_size(X, threshold, time = NULL)
 }
 \arguments{
-\item{X}{Numeric matrix (\eqn{T \times N}) from [hm_filter_land_cells()].}
+\item{X}{Numeric matrix of land-cell observations from [hm_filter_land_cells()].}
 
 \item{threshold}{A single finite numeric value.}
 
