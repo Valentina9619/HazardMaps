@@ -12,7 +12,7 @@
 Source:
 [`inst/CITATION`](https://github.com/Valentina9619/HazardMaps/blob/main/inst/CITATION)
 
-Clavijo Mesa M, Zio E (2026). *HazardMaps: Spatial Dependence Modeling
+Clavijo Mesa MV, Zio E (2026). *HazardMaps: Spatial Dependence Modeling
 and Pseudoscenario Generation for Natural Hazards*. R package version
 0.1.0, <https://github.com/Valentina9619/HazardMaps>.
 
