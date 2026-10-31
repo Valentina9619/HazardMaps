@@ -4,8 +4,10 @@ bibentry(
   bibtype  = "Manual",
   title    = "HazardMaps: Spatial Dependence Modeling and Pseudoscenario Generation for Natural Hazards",
   author   = c(
-    person("Maria Valentina", "Clavijo Mesa"),
-    person("Enrico", "Zio")
+    person(given   = "Maria Valentina",
+           family  = "Clavijo Mesa"),
+    person(given   = "Enrico",
+           family  = "Zio")
   ),
   year     = "2026",
   note     = "R package version 0.1.0",
