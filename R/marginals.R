@@ -170,7 +170,9 @@
       loglik    = loglik,
       aic       = -2 * loglik + 2 * k,
       bic       = -2 * loglik + log(n) * k,
-      converged = TRUE
+      converged = TRUE,
+      conv_code   = if (exists("opt")) opt$convergence else 0L,
+      n_iter      = if (exists("opt")) opt$counts[["function"]] else NA_integer_
     )
 
   }, error = function(e) NULL)
@@ -193,7 +195,9 @@
 #'
 #' @return A data.frame with one row per cell and columns \code{cell_id},
 #'   \code{best_dist}, \code{best_dist_label}, \code{params}, \code{loglik},
-#'   \code{aic}, \code{bic}, \code{n_obs}, \code{n_failed}. The attribute
+#'   \code{aic}, \code{bic}, \code{n_obs}, \code{n_failed},
+#'   \code{conv_code} (0 = converged, see \code{?optim}), and \code{n_iter}
+#'   (number of function evaluations by the optimiser). The attribute
 #'   \code{"fits_full"} stores raw per-cell fit results for use in
 #'   [hm_marginal_gof()].
 #'
@@ -240,6 +244,8 @@ hm_fit_marginals <- function(X,
   bic_out    <- numeric(N)
   n_obs      <- integer(N)
   n_failed   <- integer(N)
+  conv_code_out <- integer(N)
+  n_iter_out    <- integer(N)
   fits_full  <- vector("list", N)
 
   for (j in seq_len(N)) {
@@ -286,6 +292,8 @@ hm_fit_marginals <- function(X,
     loglik_out[j] <- best$loglik
     aic_out[j]    <- best$aic
     bic_out[j]    <- best$bic
+    conv_code_out[j] <- best$conv_code
+    n_iter_out[j]    <- best$n_iter
   }
 
   out <- data.frame(
@@ -297,6 +305,8 @@ hm_fit_marginals <- function(X,
     bic             = bic_out,
     n_obs           = n_obs,
     n_failed        = n_failed,
+    conv_code       = conv_code_out,
+    n_iter          = n_iter_out,
     stringsAsFactors = FALSE
   )
 

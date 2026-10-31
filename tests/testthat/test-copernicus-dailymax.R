@@ -638,3 +638,77 @@ test_that("Copernicus KLE scenarios have correct structure and range", {
   expect_lte(attr(scenarios, "k_modes"), 20L)
   expect_gte(attr(scenarios, "var_explained"), 0.95)
 })
+
+
+test_that("Copernicus marginal parameters are physically plausible (G5.6)", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  fits <- hm_fit_marginals(X, criterion = "bic")
+
+  weibull_cells <- fits[fits$best_dist == "weibull" & !is.na(fits$best_dist), ]
+  shapes <- sapply(weibull_cells$params, function(p) p$shape)
+  scales <- sapply(weibull_cells$params, function(p) p$scale)
+
+  expect_true(all(shapes > 0.5 & shapes < 10, na.rm = TRUE))
+  expect_true(all(scales > 5   & scales < 60,  na.rm = TRUE))
+
+  expect_true(all(fits$conv_code[!is.na(fits$best_dist)] == 0L))
+  expect_true(all(fits$n_iter[!is.na(fits$best_dist)] >= 0L, na.rm = TRUE))
+})
+
+
+test_that("Copernicus fitted distributions are stable under trivial noise (G5.9)", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_small <- X[, 1:20]
+
+  fits_clean <- hm_fit_marginals(X_small, criterion = "bic")
+
+  set.seed(1L)
+  noise   <- matrix(stats::rnorm(length(X_small), sd = .Machine$double.eps * 1e6),
+                    nrow = nrow(X_small))
+  X_noisy <- X_small + noise
+
+  fits_noisy <- hm_fit_marginals(X_noisy, criterion = "bic")
+
+  expect_identical(fits_clean$best_dist, fits_noisy$best_dist)
+})
+
+
+test_that("Copernicus copula simulation is stable across seeds (G5.9b)", {
+  f <- system.file("extdata", "Copernicus_dailymax_1994_2021.nc",
+                   package = "HazardMaps")
+
+  x <- hm_read_netcdf(f, var = "i10fg")
+  x <- hm_standardize_coords(x)
+  x <- hm_decode_time(x)
+  x <- hm_select_extreme_events(x, threshold = 25)
+  X <- hm_to_matrix(x)
+
+  X_land <- hm_filter_land_cells(X)
+  fits   <- hm_fit_marginals(X_land)
+  pit    <- hm_pit_transform(X_land, fits)
+
+  U_small    <- pit$U[, 1:10]
+  fits_small <- fits[1:10, ]
+  cop        <- hm_fit_copula(U_small, type = "cvine")
+
+  s1 <- hm_simulate_copula(cop, fits_small, n_scenarios = 100L, seed = 1L)
+  s2 <- hm_simulate_copula(cop, fits_small, n_scenarios = 100L, seed = 1L)
+
+  expect_identical(s1, s2)
+})

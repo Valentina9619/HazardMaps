@@ -11,3 +11,5 @@ inst/doc
 docs
 .last-check
 .RDataTmp
+.RDataTmp1
+.RDataTmp*

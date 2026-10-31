@@ -19,7 +19,9 @@ All values must be strictly positive.}
 \value{
 A data.frame with one row per cell and columns \code{cell_id},
   \code{best_dist}, \code{best_dist_label}, \code{params}, \code{loglik},
-  \code{aic}, \code{bic}, \code{n_obs}, \code{n_failed}. The attribute
+  \code{aic}, \code{bic}, \code{n_obs}, \code{n_failed},
+  \code{conv_code} (0 = converged, see \code{?optim}), and \code{n_iter}
+  (number of function evaluations by the optimiser). The attribute
   \code{"fits_full"} stores raw per-cell fit results for use in
   [hm_marginal_gof()].
 }
