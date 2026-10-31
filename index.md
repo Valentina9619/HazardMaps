@@ -17,6 +17,17 @@ The package implements the methodology of Clavijo Mesa et al. (2026),
 validated on wind-gust extremes over Northeast Italy using Copernicus
 and EURO-CORDEX reanalysis data.
 
+## Life Cycle
+
+HazardMaps is in **maturing** stage (v0.1.0). The package currently
+supports reading NetCDF gridded data, fitting six marginal distributions
+(Weibull, Gamma, Lognormal, Gumbel, zero-truncated Gaussian and
+Laplace), modelling spatial dependence via vine copulas and KLE-based
+stochastic fields with Matérn, exponential, Gaussian and spherical
+covariance kernels, and generating spatially dependent pseudoscenarios.
+Future versions may extend support to additional copula structures and
+validation tools for generated scenarios.
+
 ## Installation
 
 ``` r

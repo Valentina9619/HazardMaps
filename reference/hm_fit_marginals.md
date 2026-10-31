@@ -30,8 +30,10 @@ hm_fit_marginals(X, dists = .hm_supported_dists, criterion = "bic")
 
 A data.frame with one row per cell and columns `cell_id`, `best_dist`,
 `best_dist_label`, `params`, `loglik`, `aic`, `bic`, `n_obs`,
-`n_failed`. The attribute `"fits_full"` stores raw per-cell fit results
-for use in \[hm_marginal_gof()\].
+`n_failed`, `conv_code` (0 = converged, see
+[`?optim`](https://rdrr.io/r/stats/optim.html)), and `n_iter` (number of
+function evaluations by the optimiser). The attribute `"fits_full"`
+stores raw per-cell fit results for use in \[hm_marginal_gof()\].
 
 ## See also
 
